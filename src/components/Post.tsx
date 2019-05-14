@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from '@emotion/styled';
-import dayjs from 'dayjs';
 import HeartOpenBook from '../svg/HeartOpenBook';
+import { ClosePopup } from './PostFeed';
 
 const highlightColor1 = '#ffcbc8';
 const highlightColor2 = '#d3ffa8';
@@ -25,8 +25,7 @@ const splitStringIntoThree = (text: string, search: string) => {
 const PostContainer = styled.div`
   position: relative;
   display: flex;
-  height: 175px;
-  padding: 10px;
+  min-height: 175px;
   border-bottom: 1px #c4c4c4 solid;
   background-color: white;
   flex-direction: row;
@@ -45,13 +44,14 @@ const Dot = styled.span`
 `;
 
 const FragmentContainer = styled.div`
+  padding-top: 5px;
   width: 550px;
 `;
 
 const ContentContainer = styled.div`
   display: flex;
   height: 60%;
-  margin-top: -10px;
+  padding: 40px 0px;
   flex-direction: column;
   justify-content: space-evenly;
 `;
@@ -69,12 +69,15 @@ const FragmentText = styled.span`
 `;
 
 const Context = styled.div`
-  display: ${(props: any) => (props.visible ? 'block' : 'none')};
+  display: ${(props: any) => (props.visible ? 'flex' : 'none')};
 
   position: absolute;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 55px;
   left: 80px;
   top: -100px;
-  padding: 50px;
   width: 450px;
   background: white;
   filter: drop-shadow(9px 6px 20px rgba(0, 0, 0, 0.2));
@@ -87,11 +90,11 @@ const Context = styled.div`
   text-align: justify;
 
   &:before {
-    font-size: 60px;
+    font-size: 65px;
     content: '“ ';
     position: absolute;
     left: 20px;
-    top: 10px;
+    top: 20px;
     color: #5d5d5d;
   }
 `;
@@ -129,8 +132,7 @@ const Circle = styled.div`
   border-radius: 50%;
   border: 1px solid #b5b5b5;
   flex-shrink: 0;
-  margin-left: 10px;
-  margin-right: 35px;
+  margin: 0 30px;
   position: relative;
 `;
 
@@ -154,10 +156,17 @@ const Letter2 = styled.span`
 
 const QuoteBlock = styled.div``;
 const ByAuthorBook = styled.div`
+  position: absolute;
+  bottom: 25px;
+  right: 50px;
   font-size: 15px;
   text-align: right;
   line-height: 1.3;
-  margin-top: 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
 `;
 const Author = styled.span`
   position: relative;
@@ -166,13 +175,15 @@ const Author = styled.span`
     font-size: 60px;
     color: #5d5d5d;
     position: absolute;
-    left: -50px;
-    top: -38px;
+    top: -37px;
+    left: -40px;
   }
   font-family: 'Domaine Text Light';
 `;
-const Book = styled.span`
+const Book = styled.div`
   font-family: 'Domaine Text Light Italic';
+  width: 60%;
+  word-wrap: break-word;
 `;
 
 const InitialCircle = ({ initial1, initial2 }: any) => {
@@ -199,21 +210,29 @@ const Frag = styled.span`
 `;
 
 const Fragment = ({
-  fragment,
+  fragmentText,
   info,
   context,
   whichBook
 }: {
-  fragment: string;
+  fragmentText: string;
   context: string;
   info: any;
   whichBook: boolean;
 }) => {
-  const { pre, middle, post } = splitStringIntoThree(context, fragment);
+  const { pre, middle, post } = splitStringIntoThree(context, fragmentText);
+  const { closePopup, setClosePopup } = useContext(ClosePopup);
   const [visible, setVisible] = useState(false);
+
+  const displayPopup = () => {
+    closePopup.close();
+    setClosePopup({ close: () => setVisible(false) });
+    setVisible(true);
+  };
+
   return (
     <FragmentText whichBook={whichBook}>
-      <Frag onClick={() => setVisible(true)}>{fragment} </Frag>
+      <Frag onClick={displayPopup}>{fragmentText} </Frag>
       <Context visible={visible}>
         <ExitBox onClick={() => setVisible(false)}>&#xd7;</ExitBox>
         <QuoteBlock>
@@ -225,7 +244,7 @@ const Fragment = ({
         </QuoteBlock>
         <ByAuthorBook>
           <Author>{info.author.name}</Author>
-          <br /> <Book>{info.title}</Book>
+          <Book>{info.title}</Book>
         </ByAuthorBook>
       </Context>
     </FragmentText>
@@ -269,7 +288,7 @@ const Post = ({
               <Fragment
                 info={whichBook ? bookInfo.book1Info : bookInfo.book2Info}
                 whichBook={whichBook}
-                fragment={el.fragment}
+                fragmentText={el.fragmentText}
                 key={el.fragmentId}
                 context={el.context}
               />

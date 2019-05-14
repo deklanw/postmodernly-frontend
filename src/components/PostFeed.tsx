@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useState } from 'react';
 import { gql } from 'apollo-boost';
 import styled from '@emotion/styled';
 import { useQuery } from 'react-apollo-hooks';
@@ -15,19 +15,29 @@ const StyledPostFeed = styled.div`
   grid-column-start: 1;
   grid-column-end: span 16;
 
-  /* overflow: hidden; */
+  & > :first-of-type {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+
+  & > :last-of-type {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom: none;
+  }
 `;
 
 const GET_POSTS = gql`
   query {
     getPosts {
+      id
       created
       creator {
         id
       }
       portman {
         id
-        portman
+        name
       }
       book1 {
         id
@@ -46,8 +56,9 @@ const GET_POSTS = gql`
       usedFragments {
         order
         fragment {
+          id
           context
-          fragment
+          fragmentText
           book {
             id
           }
@@ -58,8 +69,18 @@ const GET_POSTS = gql`
   }
 `;
 
+// figure out how to make these types better
+export const ClosePopup = createContext({
+  closePopup: null as any,
+  setClosePopup: null as any
+});
+
 const PostFeed = () => {
   const dateFormat = 'MMM D';
+
+  const [closePopup, setClosePopup] = useState({
+    close: () => console.log('Initial')
+  });
 
   const { data, error, loading } = useQuery(GET_POSTS);
   const posts: IPost[] = data.getPosts;
@@ -74,35 +95,37 @@ const PostFeed = () => {
 
   return (
     <StyledPostFeed>
-      {posts.map(el => {
-        const fragments = el.usedFragments.map(f => ({
-          bookId: f.fragment.book.id,
-          fragmentId: f.fragment.id,
-          fragment: f.fragment.fragment,
-          context: f.fragment.context,
-          order: f.order
-        }));
-        fragments.sort((a, b) => (a.order > b.order ? 1 : 0));
+      <ClosePopup.Provider value={{ closePopup, setClosePopup }}>
+        {posts.map(post => {
+          const fragments = post.usedFragments.map(f => ({
+            bookId: f.fragment.book.id,
+            fragmentId: f.fragment.id,
+            fragmentText: f.fragment.fragmentText,
+            context: f.fragment.context,
+            order: f.order
+          }));
+          fragments.sort((a, b) => (a.order > b.order ? 1 : 0));
 
-        const bookInfo = { book1Info: el.book1, book2Info: el.book2 };
-        const date = dayjs(el.created).format(dateFormat);
+          const bookInfo = { book1Info: post.book1, book2Info: post.book2 };
+          const date = dayjs(post.created).format(dateFormat);
 
-        const initial1 = el.book1.author.name.split(' ').pop()![0];
-        const initial2 = el.book2.author.name.split(' ').pop()![0];
+          const initial1 = post.book1.author.name.split(' ').pop()![0];
+          const initial2 = post.book2.author.name.split(' ').pop()![0];
 
-        return (
-          <Post
-            date={date}
-            initial1={initial1}
-            initial2={initial2}
-            portman={el.portman.portman}
-            fragments={fragments}
-            likeCount={el.likeCount}
-            bookInfo={bookInfo}
-            key={el.id}
-          />
-        );
-      })}
+          return (
+            <Post
+              date={date}
+              initial1={initial1}
+              initial2={initial2}
+              portman={post.portman.name}
+              fragments={fragments}
+              likeCount={post.likeCount}
+              bookInfo={bookInfo}
+              key={post.id}
+            />
+          );
+        })}
+      </ClosePopup.Provider>
     </StyledPostFeed>
   );
 };

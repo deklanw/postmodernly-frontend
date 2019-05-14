@@ -6,8 +6,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: horizontal;
   justify-content: space-between;
-  align-items: center;
-  margin: 15px 30px;
+  align-items: flex-start;
+  margin: 20px 30px;
 `;
 
 const Logo = styled.span`

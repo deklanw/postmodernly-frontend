@@ -60,7 +60,6 @@ const Container = styled.div`
   flex-direction: horizontal;
   justify-content: center;
   align-items: center;
-  margin: 15px 30px;
 `;
 
 const FormBox = styled.div`

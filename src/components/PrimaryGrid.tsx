@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import Post from './Post';
 import PostCreator from './PostCreator';
 import PostFeed from './PostFeed';
 
