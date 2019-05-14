@@ -1,6 +1,6 @@
 import React from 'react';
-import { withFormik, FormikErrors, FormikProps, Field, Form } from 'formik';
-import { graphql, compose } from 'react-apollo';
+import { withFormik, FormikProps, Field, Form } from 'formik';
+import { compose } from 'react-apollo';
 import { InputField, GenericFormBox, registerValidation } from './shared/input';
 
 interface FormValues {

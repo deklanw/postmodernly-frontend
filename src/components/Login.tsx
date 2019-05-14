@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql } from 'apollo-boost';
 import { graphql, compose } from 'react-apollo';
-import { withFormik, FormikErrors, FormikProps, Field, Form } from 'formik';
+import { withFormik, FormikProps, Field, Form } from 'formik';
 import { InputField, GenericFormBox, loginValidation } from './shared/input';
 
 interface FormValues {

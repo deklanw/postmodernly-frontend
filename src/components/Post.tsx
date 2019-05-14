@@ -56,20 +56,20 @@ const ContentContainer = styled.div`
   justify-content: space-evenly;
 `;
 
-const FragmentText = styled.span`
+const FragmentText = styled.span<{ whichBook: boolean }>`
   position: relative;
   font-family: 'Domaine Text Regular';
   font-size: 15px;
   color: #161616;
   overflow-wrap: normal;
   &:hover {
-    background-color: ${(props: any) =>
-      props.whichBook ? highlightColor1 : highlightColor2};
+    background-color: ${({ whichBook }) =>
+      whichBook ? highlightColor1 : highlightColor2};
   }
 `;
 
-const Context = styled.div`
-  display: ${(props: any) => (props.visible ? 'flex' : 'none')};
+const Context = styled.div<{ visible: boolean }>`
+  display: ${({ visible }) => (visible ? 'flex' : 'none')};
 
   position: absolute;
   flex-direction: column;
@@ -99,9 +99,9 @@ const Context = styled.div`
   }
 `;
 
-const HighlightedOccurrence = styled.span`
-  background-color: ${(props: any) =>
-    props.whichBook ? highlightColor1 : highlightColor2};
+const HighlightedOccurrence = styled.span<{ whichBook: boolean }>`
+  background-color: ${({ whichBook }) =>
+    whichBook ? highlightColor1 : highlightColor2};
 `;
 
 export const LikeContainer = styled.div`

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-const Button = styled.button(
+const Button = styled.button<{ fontSize: number }>(
   {
     width: '150px',
     height: '50px',
     backgroundColor: '#F2F2F2',
-    color: 'blac',
+    color: 'black',
     fontFamily: 'Domaine Text Light'
   },
-  (props: any) => ({
-    fontSize: props.fontSize
+  ({ fontSize }) => ({
+    fontSize
   })
 );
 

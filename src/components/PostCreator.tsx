@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { knuthShuffle } from 'knuth-shuffle';
 import { gql } from 'apollo-boost';
@@ -26,9 +26,8 @@ type BookInfo = {
 const book1Blue = '#C9D8F3';
 const book2Yellow = '#F5F2CD';
 
-const FragmentOption = styled.span`
-  background-color: ${(props: any) =>
-    props.whichBook ? book1Blue : book2Yellow};
+const FragmentOption = styled.span<{ whichBook: boolean }>`
+  background-color: ${({ whichBook }) => (whichBook ? book1Blue : book2Yellow)};
   font-family: 'Domaine Text Regular';
   font-size: 13px;
   color: black;
@@ -87,9 +86,9 @@ const AuthorCircle = styled.div`
   background-color: ${props => props.color};
 `;
 
-const StyledButtonsBox = styled.div`
+const StyledButtonsBox = styled.div<{ top: boolean }>`
   height: 50px;
-  margin: ${({ top }: any) => (top ? '0 0 auto 0' : 'auto 0 0 0')};
+  margin: ${({ top }) => (top ? '0 0 auto 0' : 'auto 0 0 0')};
   display: flex;
   justify-content: space-between;
   align-items: ${({ top }: any) => (top ? 'flex-start' : 'flex-end')};
@@ -186,9 +185,8 @@ const OptionsBox = ({
 
 const SelectionBox = styled.div``;
 
-const SelectedOption = styled.div`
-  background-color: ${(props: any) =>
-    props.whichBook ? book1Blue : book2Yellow};
+const SelectedOption = styled.div<{ whichBook: boolean }>`
+  background-color: ${({ whichBook }) => (whichBook ? book1Blue : book2Yellow)};
   margin: 3px 5px;
   padding: 0 7px;
 

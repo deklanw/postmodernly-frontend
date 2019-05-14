@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { LikeContainer } from '../components/Post';
 
 type Props = {
   color?: string;

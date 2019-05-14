@@ -33,13 +33,13 @@ export const loginValidation = yup.object().shape({
   password: passwordValidation
 });
 
-const StyledInput = styled.input`
+const StyledInput = styled.input<any>`
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
   border-radius: 2px;
   background-color: #f2f2f2;
-  border: ${(props: any) => (props.error ? '1px solid #ff5757' : 'none')};
+  border: ${({ error }) => (error ? '1px solid #ff5757' : 'none')};
   font-family: 'Domaine Text Light';
   font-size: 16px;
   color: #333333;
