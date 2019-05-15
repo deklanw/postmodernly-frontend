@@ -4,13 +4,17 @@ import styled from '@emotion/styled';
 const Container = styled.div`
   display: flex;
   flex-direction: horizontal;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin: 15px 30px;
+  margin: 30px 30px;
 `;
 
 const Footer = () => {
-  return <Container>Stuff goes here</Container>;
+  return (
+    <Container>
+      <div>Stuff goes here</div>
+    </Container>
+  );
 };
 
 export default Footer;

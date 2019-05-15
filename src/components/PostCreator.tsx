@@ -4,30 +4,15 @@ import { knuthShuffle } from 'knuth-shuffle';
 import { gql } from 'apollo-boost';
 import { useMutation } from 'react-apollo-hooks';
 import { PostOptions } from '../../generated/graphql';
-
-type Fragment = {
-  fragmentText: string;
-  fragmentId: number;
-  bookId: number;
-  whichBook: boolean;
-};
-
-type BookInfos = {
-  book1Info: BookInfo;
-  book2Info: BookInfo;
-};
-
-type BookInfo = {
-  id: number;
-  title: string;
-  author: string;
-};
-
-const book1Blue = '#C9D8F3';
-const book2Yellow = '#F5F2CD';
+import { CircleExpandAndDisappear, ExpandAndContractSpinner } from './Spinner';
+import StyledButtonsBox from '../StyledButtonsBox';
+import { BOOK1_BLUE, BOOK2_YELLOW } from '../util/constants';
+import { Fragment, BooksInfo } from './shared/types';
+import SelectionAndControlsBox from './SelectionAndControlsBox';
 
 const FragmentOption = styled.span<{ whichBook: boolean }>`
-  background-color: ${({ whichBook }) => (whichBook ? book1Blue : book2Yellow)};
+  background-color: ${({ whichBook }) =>
+    whichBook ? BOOK1_BLUE : BOOK2_YELLOW};
   font-family: 'Domaine Text Regular';
   font-size: 13px;
   color: black;
@@ -36,16 +21,6 @@ const FragmentOption = styled.span<{ whichBook: boolean }>`
   padding: 1px;
   cursor: pointer;
 `;
-
-const StyledResultAndControlsBox = styled.div`
-  min-height: 270px;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-
-  border-bottom: 1px solid #b8b8b8;
-`;
-
 const StyledOptionsBox = styled.div`
   padding: 20px;
   min-height: 800px;
@@ -86,43 +61,8 @@ const AuthorCircle = styled.div`
   background-color: ${props => props.color};
 `;
 
-const StyledButtonsBox = styled.div<{ top: boolean }>`
-  height: 50px;
-  margin: ${({ top }) => (top ? '0 0 auto 0' : 'auto 0 0 0')};
-  display: flex;
-  justify-content: space-between;
-  align-items: ${({ top }: any) => (top ? 'flex-start' : 'flex-end')};
-
-  & button {
-    font-family: 'Domaine Text Regular';
-    font-size: 14px;
-    width: 95px;
-    height: 35px;
-    border: none;
-    border-radius: 2px;
-
-    cursor: pointer;
-  }
-  /* 
-  & button:nth-of-type(1) {
-    color: black;
-    background-color: white;
-  } */
-
-  & button:nth-of-type(1) {
-    color: black;
-    background-color: white;
-    border: 1px solid black;
-  }
-
-  & button:nth-of-type(2) {
-    color: white;
-    background-color: #535353;
-  }
-`;
-
 const FragmentsBox = styled.div`
-  margin-bottom: 30px;
+  margin: 15px 0 30px 0;
 `;
 
 const OptionsBox = ({
@@ -130,13 +70,15 @@ const OptionsBox = ({
   shuffleFragments,
   orderedFragments,
   selectedFragments,
+  clearSelectedFragments,
   bookInfo,
   addFragmentSelection
 }: {
   orderedFragments: Fragment[];
   selectedFragments: Fragment[];
-  bookInfo: BookInfos | undefined;
+  bookInfo: BooksInfo | undefined;
   addFragmentSelection: any;
+  clearSelectedFragments: any;
   getFragmentOptions: any;
   shuffleFragments: any;
 }) => {
@@ -144,22 +86,27 @@ const OptionsBox = ({
     <StyledAuthorsInfoBox>
       <AuthorInfo>
         {bookInfo.book1Info.author}
-        <AuthorCircle color={book1Blue} />
+        <AuthorCircle color={BOOK1_BLUE} />
       </AuthorInfo>
       <AuthorInfo>
         {bookInfo.book2Info.author}
-        <AuthorCircle color={book2Yellow} />
+        <AuthorCircle color={BOOK2_YELLOW} />
       </AuthorInfo>
     </StyledAuthorsInfoBox>
   ) : null;
 
+  const refresh = () => {
+    clearSelectedFragments();
+    getFragmentOptions();
+  };
+
   return (
     <StyledOptionsBox>
-      <StyledButtonsBox top>
+      <StyledButtonsBox>
         <button type="submit" onClick={shuffleFragments}>
           Shuffle
         </button>
-        <button type="submit" onClick={getFragmentOptions}>
+        <button type="submit" onClick={refresh}>
           Refresh
         </button>
       </StyledButtonsBox>
@@ -183,82 +130,6 @@ const OptionsBox = ({
   );
 };
 
-const SelectionBox = styled.div``;
-
-const SelectedOption = styled.div<{ whichBook: boolean }>`
-  background-color: ${({ whichBook }) => (whichBook ? book1Blue : book2Yellow)};
-  margin: 3px 5px;
-  padding: 0 7px;
-
-  font-family: 'Domaine Text Regular';
-  font-size: 14px;
-
-  display: inline-flex;
-  align-items: center;
-`;
-
-const RemoveSelectionX = styled.div`
-  display: inline-block;
-  cursor: pointer;
-  margin-left: 5px;
-  font-size: 22px;
-  color: #7b7b7b;
-`;
-
-const SelectionAndControlsBox = ({
-  removeFragmentSelection,
-  selectedFragments,
-  resetOptions,
-  makePost,
-  bookInfo
-}: {
-  removeFragmentSelection: any;
-  selectedFragments: Fragment[];
-  resetOptions: any;
-  makePost: any;
-  bookInfo: BookInfos | undefined;
-}) => {
-  const submit = async () => {
-    const fragments = selectedFragments.map((el, i) => ({
-      fragmentId: el.fragmentId,
-      order: i
-    }));
-
-    const response = await makePost({ variables: { data: { fragments } } });
-
-    if (response.data.makePost) {
-      // reset form, refresh options
-      resetOptions();
-    } else {
-      // errored out, show error, keep options. keep form
-    }
-  };
-  return (
-    <StyledResultAndControlsBox>
-      <SelectionBox>
-        {selectedFragments.map(el => (
-          <SelectedOption whichBook={el.whichBook} key={el.fragmentId}>
-            {el.fragmentText}
-            <RemoveSelectionX
-              onClick={() => removeFragmentSelection(el.fragmentId)}
-            >
-              &#xd7;
-            </RemoveSelectionX>
-          </SelectedOption>
-        ))}
-      </SelectionBox>
-      <StyledButtonsBox top={false}>
-        <button type="submit" onClick={resetOptions}>
-          Clear
-        </button>
-        <button type="submit" onClick={submit}>
-          Submit
-        </button>
-      </StyledButtonsBox>
-    </StyledResultAndControlsBox>
-  );
-};
-
 function immutableShuffle<T>(arr: T[]): T[] {
   const newArray = arr.slice();
   return knuthShuffle(newArray);
@@ -269,6 +140,7 @@ const GET_NEW_POST_OPTIONS = gql`
     getNewPostOptions {
       book1Options {
         book {
+          id
           title
           author {
             name
@@ -284,6 +156,7 @@ const GET_NEW_POST_OPTIONS = gql`
       }
       book2Options {
         book {
+          id
           title
           author {
             name
@@ -311,7 +184,7 @@ const initSelectedFragments: Fragment[] = [];
 const initFragmentOptions: Fragment[] = [];
 // const initBookInfo: { [key: string]: { id: string, title: string; author: string } } = {};
 
-const initBookInfo: BookInfos | undefined = undefined;
+const initBookInfo: BooksInfo | undefined = undefined;
 
 const Container = styled.div`
   background-color: white;
@@ -327,7 +200,7 @@ const PostCreator = () => {
   const [selectedFragments, setSelectedFragments] = useState(
     initSelectedFragments
   );
-  const [bookInfo, setBookInfo] = useState<BookInfos | undefined>(initBookInfo);
+  const [bookInfo, setBookInfo] = useState<BooksInfo | undefined>(initBookInfo);
 
   const getFragmentOptions = async () => {
     const options: PostOptions = (await getNewPostOptions()).data
@@ -374,6 +247,8 @@ const PostCreator = () => {
   const addFragmentSelection = (fragment: Fragment) =>
     setSelectedFragments([...selectedFragments, fragment]);
 
+  const clearSelectedFragments = () => setSelectedFragments([]);
+
   const removeFragmentSelection = (fragmentId: number) => {
     setSelectedFragments(
       selectedFragments.filter(el => el.fragmentId !== fragmentId)
@@ -399,6 +274,7 @@ const PostCreator = () => {
         getFragmentOptions={getFragmentOptions}
         shuffleFragments={shuffleFragments}
         addFragmentSelection={addFragmentSelection}
+        clearSelectedFragments={clearSelectedFragments}
         orderedFragments={orderedFragments}
         selectedFragments={selectedFragments}
         bookInfo={bookInfo}

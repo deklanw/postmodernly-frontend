@@ -48,6 +48,10 @@ const App = () => {
             font-family: 'Domaine Text Medium';
             src: url('/fonts/Domaine Text Medium.otf');
           }
+          @font-face {
+            font-family: 'Domaine Text Bold';
+            src: url('/fonts/Domaine Text Bold.otf');
+          }
           body {
             margin: 0;
           }

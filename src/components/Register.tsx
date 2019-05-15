@@ -1,6 +1,8 @@
 import React from 'react';
 import { withFormik, FormikProps, Field, Form } from 'formik';
-import { compose } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import { gql } from 'apollo-boost';
+
 import { InputField, GenericFormBox, registerValidation } from './shared/input';
 
 interface FormValues {
@@ -10,7 +12,20 @@ interface FormValues {
   passwordConfirm: string;
 }
 
-interface Props {}
+interface Props {
+  registerUser: any;
+  history: any;
+}
+
+const registerUser = gql`
+  mutation($data: RegisterInput!) {
+    register(data: $data) {
+      id
+      email
+      created
+    }
+  }
+`;
 
 const Register = ({
   isSubmitting,
@@ -55,16 +70,29 @@ const Register = ({
 };
 
 export default compose(
+  graphql(registerUser, { name: 'registerUser' }),
   withFormik<Props, FormValues>({
     validationSchema: registerValidation,
     mapPropsToValues: () => ({ email: '', password: '', passwordConfirm: '' }),
-    handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-      console.log(values);
-      console.log('Hit submit');
-      setTimeout(() => {
-        alert(JSON.stringify(values, null, 2));
+    handleSubmit: async (values, { props, setErrors, setSubmitting }) => {
+      const { email, password, passwordConfirm } = values;
+
+      try {
+        const response = await props.registerUser({
+          variables: { data: { email, password } }
+        });
+
+        if (response.data.register) {
+          // redirect to homepage
+          props.history.push('/');
+        } else {
+          // indicate some kind of error
+        }
+      } catch (errors) {
+        setErrors(errors);
+      } finally {
         setSubmitting(false);
-      }, 1000);
+      }
     }
   })
 )(Register);

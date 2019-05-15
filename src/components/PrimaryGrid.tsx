@@ -14,7 +14,8 @@ const Container = styled.div`
 const Grid = styled.div`
   display: grid;
   align-self: center;
-  margin-top: 100px;
+  margin-top: 50px;
+  align-items: start;
 
   grid-template-columns: repeat(24, 40px);
   grid-template-rows: 1fr;
