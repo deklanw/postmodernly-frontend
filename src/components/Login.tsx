@@ -1,8 +1,13 @@
 import React from 'react';
-import { gql } from 'apollo-boost';
-import { graphql, compose } from 'react-apollo';
+import { graphql, compose, MutationFn } from 'react-apollo';
 import { withFormik, FormikProps, Field, Form } from 'formik';
 import { InputField, GenericFormBox, loginValidation } from './shared/input';
+import { LOGIN, ME_QUERY } from '../graphql/graphql';
+import {
+  LoginUserMutation,
+  LoginUserMutationVariables
+} from '../generated/graphql';
+import { SERVER_DOWN } from '../util/constants';
 
 interface FormValues {
   [key: string]: string;
@@ -11,24 +16,17 @@ interface FormValues {
 }
 
 interface Props {
-  loginUser: any;
+  loginUser: MutationFn<LoginUserMutation, LoginUserMutationVariables>;
   history: any;
 }
 
-const loginUser = gql`
-  mutation($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      id
-    }
-  }
-`;
-
-const Register = ({
+const Login = ({
   isSubmitting,
-  isValid
+  isValid,
+  status
 }: FormikProps<FormValues> & Props) => {
   return (
-    <GenericFormBox header="Login">
+    <GenericFormBox header="Login" status={status}>
       <Form>
         <label>
           Email
@@ -57,28 +55,52 @@ const Register = ({
 };
 
 export default compose(
-  graphql(loginUser, { name: 'loginUser' }),
+  graphql(LOGIN, { name: 'loginUser' }),
   withFormik<Props, FormValues>({
     validationSchema: loginValidation,
     mapPropsToValues: () => ({ email: '', password: '' }),
-    handleSubmit: async (values, { props, setErrors, setSubmitting }) => {
+    handleSubmit: async (
+      values,
+      { props, setErrors, setSubmitting, setStatus }
+    ) => {
       const { email, password } = values;
       try {
         const response = await props.loginUser({
-          variables: { email, password }
+          variables: { email, password },
+          update: (store, { data }) => {
+            if (!data || !data.login) {
+              return;
+            }
+
+            // update Me query, triggering rerender in Header .
+            store.writeQuery({
+              query: ME_QUERY,
+              data: {
+                me: {
+                  __typename: data.login.__typename,
+                  id: data.login.id,
+                  email: data.login.email
+                }
+              }
+            });
+          }
         });
 
-        if (response.data.login) {
-          // redirect to homepage
+        if (response && response.data && response.data.login) {
           props.history.push('/');
-        } else {
-          // indicate some kind of error
+        }
+        if (response && response.data && !response.data.login) {
+          setStatus({
+            error: 'Credentials incorrect. Check your email and password.'
+          });
         }
       } catch (errors) {
-        setErrors(errors);
+        setStatus({
+          error: SERVER_DOWN
+        });
       } finally {
         setSubmitting(false);
       }
     }
   })
-)(Register);
+)(Login);

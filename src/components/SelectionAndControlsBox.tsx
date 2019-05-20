@@ -3,7 +3,12 @@ import styled from '@emotion/styled';
 import { withFormik, FormikProps } from 'formik';
 
 import StyledButtonsBox from '../StyledButtonsBox';
-import { BOOK1_BLUE, BOOK2_YELLOW, MAX_POST_LENGTH } from '../util/constants';
+import {
+  BOOK1_BLUE,
+  BOOK2_YELLOW,
+  MAX_POST_LENGTH,
+  ERROR_RED
+} from '../util/constants';
 import { Fragment, BooksInfo } from './shared/types';
 import { ExpandAndContractSpinner, CircleExpandAndDisappear } from './Spinner';
 
@@ -21,7 +26,7 @@ const SelectedOption = styled.div<{ whichBook: boolean }>`
   margin: 3px 5px;
   padding: 0 7px;
 
-  font-family: 'Domaine Text Regular';
+  font-family: 'Spectral Regular';
   font-size: 14px;
 
   display: inline-flex;
@@ -42,9 +47,9 @@ const StyledResultAndControlsBox = styled.div`
 `;
 
 const ErrorBox = styled.div`
-  font-family: 'Domaine Text Bold';
+  font-family: 'Spectral Medium';
   font-size: 14px;
-  color: #cb2e2e;
+  color: ${ERROR_RED};
   justify-self: flex-end;
   margin-bottom: 10px;
 `;

@@ -1,9 +1,14 @@
 import React from 'react';
 import { withFormik, FormikProps, Field, Form } from 'formik';
-import { compose, graphql } from 'react-apollo';
-import { gql } from 'apollo-boost';
+import { compose, graphql, MutationFn } from 'react-apollo';
 
 import { InputField, GenericFormBox, registerValidation } from './shared/input';
+import { REGISTER_USER } from '../graphql/graphql';
+import {
+  RegisterMutationVariables,
+  RegisterMutation
+} from '../generated/graphql';
+import { SERVER_DOWN, SOMETHING_WENT_WRONG } from '../util/constants';
 
 interface FormValues {
   [key: string]: string;
@@ -13,26 +18,17 @@ interface FormValues {
 }
 
 interface Props {
-  registerUser: any;
+  registerUser: MutationFn<RegisterMutation, RegisterMutationVariables>;
   history: any;
 }
 
-const registerUser = gql`
-  mutation($data: RegisterInput!) {
-    register(data: $data) {
-      id
-      email
-      created
-    }
-  }
-`;
-
 const Register = ({
   isSubmitting,
-  isValid
+  isValid,
+  status
 }: FormikProps<FormValues> & Props) => {
   return (
-    <GenericFormBox header="Sign-up">
+    <GenericFormBox header="Sign-up" status={status}>
       <Form>
         <label>
           Email
@@ -70,11 +66,14 @@ const Register = ({
 };
 
 export default compose(
-  graphql(registerUser, { name: 'registerUser' }),
+  graphql(REGISTER_USER, { name: 'registerUser' }),
   withFormik<Props, FormValues>({
     validationSchema: registerValidation,
     mapPropsToValues: () => ({ email: '', password: '', passwordConfirm: '' }),
-    handleSubmit: async (values, { props, setErrors, setSubmitting }) => {
+    handleSubmit: async (
+      values,
+      { props, setErrors, setStatus, setSubmitting }
+    ) => {
       const { email, password, passwordConfirm } = values;
 
       try {
@@ -82,14 +81,15 @@ export default compose(
           variables: { data: { email, password } }
         });
 
-        if (response.data.register) {
-          // redirect to homepage
+        if (response && response.data) {
           props.history.push('/');
         } else {
-          // indicate some kind of error
+          setStatus({ error: SOMETHING_WENT_WRONG });
         }
       } catch (errors) {
-        setErrors(errors);
+        setStatus({
+          error: SERVER_DOWN
+        });
       } finally {
         setSubmitting(false);
       }

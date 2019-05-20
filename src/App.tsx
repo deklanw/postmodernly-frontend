@@ -1,15 +1,21 @@
 import React from 'react';
-import { Global, css } from '@emotion/core';
 import styled from '@emotion/styled';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
 import { ApolloProvider } from 'react-apollo';
-import ApolloClient from 'apollo-boost';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { BatchHttpLink } from 'apollo-link-batch-http';
+import { onError } from 'apollo-link-error';
+import { ApolloLink } from 'apollo-link';
+
 import PrimaryGrid from './components/PrimaryGrid';
 import Header from './components/Header';
 import Register from './components/Register';
 import Footer from './components/Footer';
 import Login from './components/Login';
+import Logout from './components/Logout';
 
 const Container = styled.div`
   display: flex;
@@ -23,60 +29,46 @@ const Content = styled.div`
 `;
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  credentials: 'include'
+  link: ApolloLink.from([
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors)
+        graphQLErrors.map(({ message, locations, path }) =>
+          console.log(
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+          )
+        );
+      if (networkError) console.log(`[Network error]: ${networkError}`);
+    }),
+    new HttpLink({
+      uri: 'http://localhost:4000/graphql',
+      credentials: 'include'
+    })
+  ]),
+  cache: new InMemoryCache()
 });
+
+const LoggedInContainer = () => {
+  return (
+    <Container>
+      <Header />
+      <Content>
+        <Route exact path="/" component={PrimaryGrid} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/logout" component={Logout} />
+      </Content>
+      <Footer />
+    </Container>
+  );
+};
 
 const App = () => {
   return (
     <>
-      <Global
-        styles={css`
-          @font-face {
-            font-family: 'Domaine Text Light Italic';
-            src: url('/fonts/Domaine Text Light Italic.otf');
-          }
-          @font-face {
-            font-family: 'Domaine Text Light';
-            src: url('/fonts/Domaine Text Light.otf');
-          }
-          @font-face {
-            font-family: 'Domaine Text Regular';
-            src: url('/fonts/Domaine Text Regular.otf');
-          }
-          @font-face {
-            font-family: 'Domaine Text Medium';
-            src: url('/fonts/Domaine Text Medium.otf');
-          }
-          @font-face {
-            font-family: 'Domaine Text Bold';
-            src: url('/fonts/Domaine Text Bold.otf');
-          }
-          body {
-            margin: 0;
-          }
-          html {
-            box-sizing: border-box;
-          }
-          *,
-          *:before,
-          *:after {
-            box-sizing: inherit;
-          }
-        `}
-      />
       <ApolloProvider client={client}>
         <ApolloHooksProvider client={client}>
           <Router>
-            <Container>
-              <Header />
-              <Content>
-                <Route exact path="/" component={PrimaryGrid} />
-                <Route exact path="/register" component={Register} />
-                <Route exact path="/login" component={Login} />
-              </Content>
-              <Footer />
-            </Container>
+            <LoggedInContainer />
           </Router>
         </ApolloHooksProvider>
       </ApolloProvider>

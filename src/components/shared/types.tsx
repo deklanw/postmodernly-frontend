@@ -3,6 +3,7 @@ export type Fragment = {
   fragmentId: number;
   bookId: number;
   whichBook: boolean;
+  order: number;
 };
 
 export type BooksInfo = {

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import { useMeQuery } from '../generated/graphql';
 
 const Container = styled.div`
   display: flex;
@@ -17,15 +18,15 @@ const Logo = styled.span`
 `;
 
 const Heading = styled(Link)`
-  font-family: 'Domaine Text Medium';
-  font-size: 32px;
+  font-family: 'Spectral Medium';
+  font-size: 36px;
   color: #333333;
   text-decoration: none;
 `;
 
 const Subheading = styled.span`
-  font-family: 'Domaine Text Medium';
-  font-size: 16px;
+  font-family: 'Spectral Medium';
+  font-size: 18px;
   color: #4d4d4d;
 
   margin-left: 5px;
@@ -34,20 +35,42 @@ const Subheading = styled.span`
 
 const Links = styled.span`
   display: flex;
-  flex-direction: horizontal;
+  flex-direction: row;
   justify-content: space-between;
 
   width: 400px;
 `;
 
 const LinkItem = styled(Link)`
-  font-family: 'Domaine Text Medium';
+  font-family: 'Spectral Medium';
   font-size: 20px;
   text-decoration: none;
   color: #333333;
 `;
 
 const Header = () => {
+  const { data, error, loading } = useMeQuery();
+
+  const loggedOut = !(data && data.me);
+
+  let content;
+
+  if (loggedOut && !loading) {
+    content = (
+      <>
+        <LinkItem to="/register">Sign-up</LinkItem>
+        <LinkItem to="/login">Login</LinkItem>
+      </>
+    );
+  }
+  if (!loggedOut) {
+    content = (
+      <>
+        <LinkItem to="/logout">Logout</LinkItem>
+      </>
+    );
+  }
+
   return (
     <Container>
       <Logo>
@@ -55,9 +78,8 @@ const Header = () => {
         <Subheading>Digital cut-ups</Subheading>
       </Logo>
       <Links>
-        <LinkItem to="/register">Sign-up</LinkItem>
-        <LinkItem to="/login">Login</LinkItem>
         <LinkItem to="/">About</LinkItem>
+        {content}
       </Links>
     </Container>
   );

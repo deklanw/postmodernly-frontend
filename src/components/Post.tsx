@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import styled from '@emotion/styled';
-import HeartOpenBook from '../svg/HeartOpenBook';
+import HeartOpenBook from '../assets/svg/HeartOpenBook';
 import { ClosePopup } from './PostFeed';
 
 const highlightColor1 = '#ffcbc8';
@@ -33,7 +33,7 @@ const PostContainer = styled.div`
 `;
 
 const AuthorHeader = styled.div`
-  font-family: 'Domaine Text Light';
+  font-family: 'Spectral Light';
   font-size: 13px;
 `;
 
@@ -58,8 +58,8 @@ const ContentContainer = styled.div`
 
 const FragmentText = styled.span<{ whichBook: boolean }>`
   position: relative;
-  font-family: 'Domaine Text Regular';
-  font-size: 15px;
+  font-family: 'Spectral Regular';
+  font-size: 16px;
   color: #161616;
   overflow-wrap: normal;
   &:hover {
@@ -83,8 +83,8 @@ const Context = styled.div<{ visible: boolean }>`
   filter: drop-shadow(9px 6px 20px rgba(0, 0, 0, 0.2));
   z-index: 2;
 
-  font-family: 'Domaine Text Regular';
-  font-size: 13px;
+  font-family: 'Spectral Regular';
+  font-size: 14px;
   color: #161616;
   line-height: 1.5;
   text-align: justify;
@@ -123,7 +123,7 @@ export const LikeContainer = styled.div`
 
 const LikeCount = styled.span`
   font-size: 13px;
-  font-family: 'Domaine Text Light';
+  font-family: 'Spectral Light';
 `;
 
 const Circle = styled.div`
@@ -138,16 +138,16 @@ const Circle = styled.div`
 
 const Letter1 = styled.span`
   font-size: 43px;
-  font-family: 'Domaine Text Regular';
+  font-family: 'Spectral Regular';
   color: #676767;
   position: absolute;
-  top: 15%;
-  left: 25%;
+  top: 13%;
+  left: 28%;
 `;
 
 const Letter2 = styled.span`
   font-size: 39px;
-  font-family: 'Domaine Text Regular';
+  font-family: 'Spectral Regular';
   color: #676767;
   position: absolute;
   top: 35%;
@@ -175,14 +175,14 @@ const Author = styled.span`
     font-size: 60px;
     color: #5d5d5d;
     position: absolute;
-    top: -37px;
+    top: -32px;
     left: -40px;
   }
-  font-family: 'Domaine Text Light';
+  font-family: 'Spectral Light';
 `;
 const Book = styled.div`
-  font-family: 'Domaine Text Light Italic';
-  width: 60%;
+  font-family: 'Spectral Light Italic';
+  width: 70%;
   word-wrap: break-word;
 `;
 

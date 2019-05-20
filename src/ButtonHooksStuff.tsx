@@ -7,7 +7,7 @@ const Button = styled.button<{ fontSize: number }>(
     height: '50px',
     backgroundColor: '#F2F2F2',
     color: 'black',
-    fontFamily: 'Domaine Text Light'
+    fontFamily: 'Spectral Light'
   },
   ({ fontSize }) => ({
     fontSize
@@ -15,7 +15,7 @@ const Button = styled.button<{ fontSize: number }>(
 );
 
 const ResetButton = styled.button`
-  font-family: 'Domaine Text Medium';
+  font-family: 'Spectral Medium';
   color: black;
   width: 200px;
   height: 50px;

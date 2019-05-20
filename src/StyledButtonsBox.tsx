@@ -6,7 +6,7 @@ export default styled.div`
   align-items: ${({ top }: any) => (top ? 'flex-start' : 'flex-end')};
 
   & button {
-    font-family: 'Domaine Text Regular';
+    font-family: 'Spectral Regular';
     font-size: 14px;
     width: 95px;
     height: 35px;

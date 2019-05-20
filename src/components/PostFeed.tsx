@@ -1,17 +1,14 @@
 import React, { createContext, useState } from 'react';
-import { gql } from 'apollo-boost';
 import styled from '@emotion/styled';
-import { useQuery } from 'react-apollo-hooks';
 import dayjs from 'dayjs';
 import Post from './Post';
-import { Post as IPost, PostsWithCursor } from '../../generated/graphql';
+import { useGetPostsWithCursorQuery } from '../generated/graphql';
 import { ExpandAndContractSpinner } from './Spinner';
-import { DATE_FORMAT } from '../util/constants';
-
-const LIMIT = 10;
+import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../util/constants';
+import { GET_POSTS_WITH_CURSOR } from '../graphql/graphql';
 
 const LoadMoreButton = styled.button`
-  font-family: 'Domaine Text Regular';
+  font-family: 'Spectral Regular';
   font-size: 14px;
   height: 35px;
   width: 180px;
@@ -26,7 +23,7 @@ const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
   justify-content: flex-end;
-  margin-top: 5px;
+  margin-top: 10px;
 `;
 
 const FeedAndButton = styled.div`
@@ -52,51 +49,6 @@ const StyledPostFeed = styled.div`
   }
 `;
 
-const GET_POSTS_WITH_CURSOR = gql`
-  query($cursor: String, $limit: Int!) {
-    getPostsWithCursor(cursor: $cursor, limit: $limit) {
-      cursor
-      posts {
-        id
-        created
-        creator {
-          id
-        }
-        portman {
-          id
-          name
-        }
-        book1 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        book2 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        usedFragments {
-          order
-          fragment {
-            id
-            context
-            fragmentText
-            book {
-              id
-            }
-          }
-        }
-        likeCount
-      }
-    }
-  }
-`;
-
 // figure out how to make these types better
 export const ClosePopup = createContext({
   closePopup: null as any,
@@ -108,11 +60,11 @@ const PostFeed = () => {
     close: () => console.log('Initial')
   });
 
-  const { data, error, loading, fetchMore } = useQuery(GET_POSTS_WITH_CURSOR, {
-    variables: { limit: LIMIT, cursor: null }
+  const { data, error, loading, fetchMore } = useGetPostsWithCursorQuery({
+    variables: { limit: POSTS_FEED_LIMIT, cursor: null }
   });
 
-  const errorContent = <span>`Error! ${error}`</span>;
+  const errorContent = <span>{`Error! ${error}`}</span>;
 
   let innerContent = null;
   let buttonStuff = null;
@@ -121,15 +73,17 @@ const PostFeed = () => {
     innerContent = <ExpandAndContractSpinner dimension={100} />;
   } else if (error) {
     innerContent = errorContent;
-  } else {
+  } else if (data) {
+    const { posts, cursor } = data.getPostsWithCursor;
+
     const morePosts = () =>
       fetchMore({
         query: GET_POSTS_WITH_CURSOR,
-        variables: { cursor: cursor as any, limit: LIMIT },
+        variables: { cursor, limit: POSTS_FEED_LIMIT },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           const previousEntry = previousResult.getPostsWithCursor;
-          const newPosts = fetchMoreResult.getPostsWithCursor.posts;
-          const newCursor = fetchMoreResult.getPostsWithCursor.cursor;
+          const newPosts = fetchMoreResult!.getPostsWithCursor.posts;
+          const newCursor = fetchMoreResult!.getPostsWithCursor.cursor;
 
           return {
             getPostsWithCursor: {
@@ -148,7 +102,6 @@ const PostFeed = () => {
         </LoadMoreButton>
       </ButtonContainer>
     );
-    const { posts, cursor }: PostsWithCursor = data.getPostsWithCursor;
 
     innerContent = (
       <ClosePopup.Provider value={{ closePopup, setClosePopup }}>
@@ -165,8 +118,12 @@ const PostFeed = () => {
           const bookInfo = { book1Info: post.book1, book2Info: post.book2 };
           const date = dayjs(post.created).format(DATE_FORMAT);
 
-          const initial1 = post.book1.author.name.split(' ').pop()![0];
-          const initial2 = post.book2.author.name.split(' ').pop()![0];
+          let initial1 = post.book1.author.name.split(' ').pop()![0];
+          let initial2 = post.book2.author.name.split(' ').pop()![0];
+
+          if (initial2.toLowerCase() === post.portman.name[0]) {
+            [initial2, initial1] = [initial1, initial2];
+          }
 
           return (
             <Post

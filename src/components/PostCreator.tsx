@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { knuthShuffle } from 'knuth-shuffle';
-import { gql } from 'apollo-boost';
-import { useMutation } from 'react-apollo-hooks';
-import { PostOptions } from '../../generated/graphql';
 import { CircleExpandAndDisappear, ExpandAndContractSpinner } from './Spinner';
 import StyledButtonsBox from '../StyledButtonsBox';
 import { BOOK1_BLUE, BOOK2_YELLOW } from '../util/constants';
 import { Fragment, BooksInfo } from './shared/types';
 import SelectionAndControlsBox from './SelectionAndControlsBox';
+import {
+  useGetNewPostOptionsMutation,
+  useGetPostOptionsMutation,
+  useMakePostMutation,
+  BookFragmentOptions,
+  PostOptionsWithTime
+} from '../generated/graphql';
 
 const FragmentOption = styled.span<{ whichBook: boolean }>`
   background-color: ${({ whichBook }) =>
     whichBook ? BOOK1_BLUE : BOOK2_YELLOW};
-  font-family: 'Domaine Text Regular';
-  font-size: 13px;
+  font-family: 'Spectral Regular';
+  font-size: 14px;
   color: black;
   display: inline-block;
   margin: 4px 6px;
@@ -32,13 +36,13 @@ const StyledAuthorsInfoBox = styled.div`
   position: relative;
   margin: auto 0 0 auto;
 
-  font-family: 'Domaine Text Regular';
+  font-family: 'Spectral Regular';
   font-size: 12px;
 
   &::before {
     position: absolute;
     content: '*';
-    font-family: 'Domaine Text Regular';
+    font-family: 'Spectral Regular';
     font-size: 29px;
 
     top: -10px;
@@ -62,11 +66,11 @@ const AuthorCircle = styled.div`
 `;
 
 const FragmentsBox = styled.div`
-  margin: 15px 0 30px 0;
+  margin: 30px 0;
 `;
 
 const OptionsBox = ({
-  getFragmentOptions,
+  getNewFragmentOptions,
   shuffleFragments,
   orderedFragments,
   selectedFragments,
@@ -79,7 +83,7 @@ const OptionsBox = ({
   bookInfo: BooksInfo | undefined;
   addFragmentSelection: any;
   clearSelectedFragments: any;
-  getFragmentOptions: any;
+  getNewFragmentOptions: any;
   shuffleFragments: any;
 }) => {
   const authorsBox = bookInfo ? (
@@ -97,7 +101,7 @@ const OptionsBox = ({
 
   const refresh = () => {
     clearSelectedFragments();
-    getFragmentOptions();
+    getNewFragmentOptions();
   };
 
   return (
@@ -134,52 +138,6 @@ function immutableShuffle<T>(arr: T[]): T[] {
   const newArray = arr.slice();
   return knuthShuffle(newArray);
 }
-
-const GET_NEW_POST_OPTIONS = gql`
-  mutation {
-    getNewPostOptions {
-      book1Options {
-        book {
-          id
-          title
-          author {
-            name
-          }
-        }
-        fragmentOptions {
-          order
-          fragment {
-            id
-            fragmentText
-          }
-        }
-      }
-      book2Options {
-        book {
-          id
-          title
-          author {
-            name
-          }
-        }
-        fragmentOptions {
-          order
-          fragment {
-            id
-            fragmentText
-          }
-        }
-      }
-    }
-  }
-`;
-
-const MAKE_POST = gql`
-  mutation($data: PostInput!) {
-    makePost(data: $data)
-  }
-`;
-
 const initSelectedFragments: Fragment[] = [];
 const initFragmentOptions: Fragment[] = [];
 // const initBookInfo: { [key: string]: { id: string, title: string; author: string } } = {};
@@ -193,24 +151,26 @@ const Container = styled.div`
 `;
 
 const PostCreator = () => {
-  const getNewPostOptions = useMutation(GET_NEW_POST_OPTIONS);
-  const makePost = useMutation(MAKE_POST);
+  const getNewPostOptions = useGetNewPostOptionsMutation();
+  const getPostOptions = useGetPostOptionsMutation();
+  const makePost = useMakePostMutation();
 
+  const [somethingLoading, setLoading] = useState(true);
   const [orderedFragments, setFragments] = useState(initFragmentOptions);
   const [selectedFragments, setSelectedFragments] = useState(
     initSelectedFragments
   );
   const [bookInfo, setBookInfo] = useState<BooksInfo | undefined>(initBookInfo);
 
-  const getFragmentOptions = async () => {
-    const options: PostOptions = (await getNewPostOptions()).data
-      .getNewPostOptions;
-    const { book1Options, book2Options } = options;
-
+  const formatOptionsAndSet = async (
+    book1Options: BookFragmentOptions,
+    book2Options: BookFragmentOptions
+  ) => {
     const reformattedBook1Options: Fragment[] = book1Options.fragmentOptions.map(
       el => ({
         fragmentText: el.fragment.fragmentText,
         fragmentId: parseInt(el.fragment.id),
+        order: el.order,
         bookId: parseInt(book1Options.book.id),
         whichBook: true
       })
@@ -220,14 +180,16 @@ const PostCreator = () => {
       el => ({
         fragmentText: el.fragment.fragmentText,
         fragmentId: parseInt(el.fragment.id),
+        order: el.order,
         bookId: parseInt(book2Options.book.id),
         whichBook: false
       })
     );
 
-    // what if one of these two fail
     setFragments(
-      knuthShuffle(reformattedBook1Options.concat(reformattedBook2Options))
+      reformattedBook1Options
+        .concat(reformattedBook2Options)
+        .sort((a, b) => a.order - b.order)
     );
 
     setBookInfo({
@@ -242,6 +204,37 @@ const PostCreator = () => {
         author: book2Options.book.author.name
       }
     });
+  };
+
+  const getFragmentOptions = async () => {
+    const { data, error, loading } = await getPostOptions();
+
+    if (!loading && data.getPostOptions.postOptions) {
+      const { book1Options, book2Options } = data.getPostOptions.postOptions;
+
+      setLoading(false);
+      formatOptionsAndSet(book1Options, book2Options);
+    }
+
+    if (error) {
+      // error state?
+      console.log('Not there');
+    }
+  };
+
+  const getNewFragmentOptions = async () => {
+    const { data, error, loading } = await getNewPostOptions();
+    const options = data.getNewPostOptions;
+
+    if (options.postOptions) {
+      const { book1Options, book2Options } = options.postOptions;
+
+      setLoading(false);
+      formatOptionsAndSet(book1Options, book2Options);
+    } else {
+      // error state?
+      console.log('Not there');
+    }
   };
 
   const addFragmentSelection = (fragment: Fragment) =>
@@ -261,24 +254,34 @@ const PostCreator = () => {
     setFragments(immutableShuffle(orderedFragments));
   };
 
+  useEffect(() => {
+    getFragmentOptions();
+  }, []);
+
   return (
     <Container>
-      <SelectionAndControlsBox
-        removeFragmentSelection={removeFragmentSelection}
-        selectedFragments={selectedFragments}
-        resetOptions={resetOptions}
-        makePost={makePost}
-        bookInfo={bookInfo}
-      />
-      <OptionsBox
-        getFragmentOptions={getFragmentOptions}
-        shuffleFragments={shuffleFragments}
-        addFragmentSelection={addFragmentSelection}
-        clearSelectedFragments={clearSelectedFragments}
-        orderedFragments={orderedFragments}
-        selectedFragments={selectedFragments}
-        bookInfo={bookInfo}
-      />
+      {somethingLoading ? (
+        <ExpandAndContractSpinner dimension={75} />
+      ) : (
+        <>
+          <SelectionAndControlsBox
+            removeFragmentSelection={removeFragmentSelection}
+            selectedFragments={selectedFragments}
+            resetOptions={resetOptions}
+            makePost={makePost}
+            bookInfo={bookInfo}
+          />
+          <OptionsBox
+            getNewFragmentOptions={getNewFragmentOptions}
+            shuffleFragments={shuffleFragments}
+            addFragmentSelection={addFragmentSelection}
+            clearSelectedFragments={clearSelectedFragments}
+            orderedFragments={orderedFragments}
+            selectedFragments={selectedFragments}
+            bookInfo={bookInfo}
+          />
+        </>
+      )}
     </Container>
   );
 };

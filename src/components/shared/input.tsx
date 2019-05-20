@@ -2,6 +2,7 @@ import React from 'react';
 import { FieldProps } from 'formik';
 import styled from '@emotion/styled';
 import * as yup from 'yup';
+import { ERROR_RED } from '../../util/constants';
 
 const EMAIL_NOT_LONG_ENOUGH = 'Email must be at least 3 characters.';
 const PASSWORD_NOT_LONG_ENOUGH = 'Password must be at least 3 characters.';
@@ -39,8 +40,8 @@ const StyledInput = styled.input<any>`
   margin: 8px 0;
   border-radius: 2px;
   background-color: #f2f2f2;
-  border: ${({ error }) => (error ? '1px solid #ff5757' : 'none')};
-  font-family: 'Domaine Text Light';
+  border: ${({ error }) => (error ? `1px solid ${ERROR_RED}` : 'none')};
+  font-family: 'Spectral Light';
   font-size: 16px;
   color: #333333;
 `;
@@ -81,11 +82,11 @@ const FormBox = styled.div`
     border-radius: 2px;
     background-color: #535353;
     border: none;
-    font-family: 'Domaine Text Regular';
+    font-family: 'Spectral Regular';
     font-size: 15px;
     color: white;
     display: block;
-    margin: 30px auto 0 auto;
+    margin: 30px auto;
   }
 
   & button:disabled {
@@ -93,7 +94,7 @@ const FormBox = styled.div`
   }
 
   & label {
-    font-family: 'Domaine Text Regular';
+    font-family: 'Spectral Regular';
     font-size: 18px;
     margin: 40px 0px;
     display: block;
@@ -101,17 +102,24 @@ const FormBox = styled.div`
 `;
 
 const Header = styled.span`
-  font-family: 'Domaine Text Medium';
+  font-family: 'Spectral Medium';
   font-size: 25px;
 `;
 
+const StatusError = styled.div`
+  font-family: 'Spectral Medium';
+  font-size: 16px;
+  color: ${ERROR_RED};
+`;
+
 export const GenericFormBox = (props: any) => {
-  const { header, children } = props;
+  const { header, status, children } = props;
   return (
     <Container>
       <FormBox>
         <Header>{header}</Header>
         {children}
+        {status && <StatusError>{status.error}</StatusError>}
       </FormBox>
     </Container>
   );
