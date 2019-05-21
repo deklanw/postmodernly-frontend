@@ -1,5 +1,5 @@
-import React from 'react';
-import { FieldProps } from 'formik';
+import React, { HTMLProps } from 'react';
+import { FieldProps, useField } from 'formik';
 import styled from '@emotion/styled';
 import * as yup from 'yup';
 import { ERROR_RED } from '../../util/constants';
@@ -34,7 +34,7 @@ export const loginValidation = yup.object().shape({
   password: passwordValidation
 });
 
-const StyledInput = styled.input<any>`
+export const StyledInput = styled.input<any>`
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -111,6 +111,20 @@ const StatusError = styled.div`
   font-size: 16px;
   color: ${ERROR_RED};
 `;
+
+export const MyTextField: React.FC<HTMLProps<HTMLInputElement>> = ({
+  label,
+  name,
+  ...props
+}) => {
+  const [field, meta] = useField(name!);
+  return (
+    <label>
+      {label}
+      <StyledInput {...field} {...props} error={meta.error && meta.touched} />
+    </label>
+  );
+};
 
 export const GenericFormBox = (props: any) => {
   const { header, status, children } = props;

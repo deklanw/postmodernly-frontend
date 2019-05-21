@@ -269,7 +269,6 @@ const PostCreator = () => {
             selectedFragments={selectedFragments}
             resetOptions={resetOptions}
             makePost={makePost}
-            bookInfo={bookInfo}
           />
           <OptionsBox
             getNewFragmentOptions={getNewFragmentOptions}

@@ -1,13 +1,13 @@
 import React from 'react';
-import { withFormik, FormikProps, Field, Form } from 'formik';
-import { compose, graphql, MutationFn } from 'react-apollo';
+import { RouteComponentProps } from 'react-router-dom';
+import { FormikConfig, Formik } from 'formik';
 
-import { InputField, GenericFormBox, registerValidation } from './shared/input';
-import { REGISTER_USER } from '../graphql/graphql';
 import {
-  RegisterMutationVariables,
-  RegisterMutation
-} from '../generated/graphql';
+  GenericFormBox,
+  registerValidation,
+  MyTextField
+} from './shared/input';
+import { useRegisterMutation } from '../generated/graphql';
 import { SERVER_DOWN, SOMETHING_WENT_WRONG } from '../util/constants';
 
 interface FormValues {
@@ -17,72 +17,25 @@ interface FormValues {
   passwordConfirm: string;
 }
 
-interface Props {
-  registerUser: MutationFn<RegisterMutation, RegisterMutationVariables>;
-  history: any;
-}
+interface Props extends RouteComponentProps {}
 
-const Register = ({
-  isSubmitting,
-  isValid,
-  status
-}: FormikProps<FormValues> & Props) => {
-  return (
-    <GenericFormBox header="Sign-up" status={status}>
-      <Form>
-        <label>
-          Email
-          <Field
-            type="text"
-            name="email"
-            component={InputField}
-            placeholder="Your email"
-          />
-        </label>
-        <label>
-          Password
-          <Field
-            type="password"
-            name="password"
-            component={InputField}
-            placeholder="Your password"
-          />
-        </label>
-        <label>
-          Confirm password
-          <Field
-            type="password"
-            name="passwordConfirm"
-            component={InputField}
-            placeholder="Your password again"
-          />
-        </label>
-        <button type="submit" disabled={isSubmitting || !isValid}>
-          Submit
-        </button>
-      </Form>
-    </GenericFormBox>
-  );
-};
+const Register: React.FC<Props> = ({ history }) => {
+  const registerUser = useRegisterMutation();
 
-export default compose(
-  graphql(REGISTER_USER, { name: 'registerUser' }),
-  withFormik<Props, FormValues>({
+  const formikConfig: FormikConfig<FormValues> = {
     validationSchema: registerValidation,
-    mapPropsToValues: () => ({ email: '', password: '', passwordConfirm: '' }),
-    handleSubmit: async (
-      values,
-      { props, setErrors, setStatus, setSubmitting }
-    ) => {
+    initialValues: { email: '', password: '', passwordConfirm: '' },
+    onSubmit: async (values, { setStatus }) => {
+      setStatus({});
       const { email, password, passwordConfirm } = values;
 
       try {
-        const response = await props.registerUser({
+        const response = await registerUser({
           variables: { data: { email, password } }
         });
 
         if (response && response.data) {
-          props.history.push('/');
+          history.push('/');
         } else {
           setStatus({ error: SOMETHING_WENT_WRONG });
         }
@@ -90,9 +43,41 @@ export default compose(
         setStatus({
           error: SERVER_DOWN
         });
-      } finally {
-        setSubmitting(false);
       }
     }
-  })
-)(Register);
+  };
+
+  return (
+    <Formik {...formikConfig}>
+      {({ isSubmitting, isValid, handleSubmit, status }) => (
+        <GenericFormBox header="Sign-up" status={status}>
+          <form onSubmit={handleSubmit}>
+            <MyTextField
+              label="Email"
+              type="text"
+              name="email"
+              placeholder="Your email"
+            />
+            <MyTextField
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Your password"
+            />
+            <MyTextField
+              label="Confirm password"
+              type="password"
+              name="passwordConfirm"
+              placeholder="Your password again"
+            />
+            <button type="submit" disabled={isSubmitting || !isValid}>
+              Submit
+            </button>
+          </form>
+        </GenericFormBox>
+      )}
+    </Formik>
+  );
+};
+
+export default Register;

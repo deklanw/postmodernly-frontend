@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { withFormik, FormikProps } from 'formik';
+import { MutationFn } from 'react-apollo-hooks';
 
 import StyledButtonsBox from '../StyledButtonsBox';
 import {
@@ -9,8 +10,12 @@ import {
   MAX_POST_LENGTH,
   ERROR_RED
 } from '../util/constants';
-import { Fragment, BooksInfo } from './shared/types';
+import { Fragment } from './shared/types';
 import { ExpandAndContractSpinner, CircleExpandAndDisappear } from './Spinner';
+import {
+  MakePostMutation,
+  MakePostMutationVariables
+} from '../generated/graphql';
 
 const RemoveSelectionX = styled.div`
   display: inline-block;
@@ -59,11 +64,10 @@ const ErrorsAndButtons = styled.div`
 `;
 
 type Props = {
-  removeFragmentSelection: any;
+  removeFragmentSelection: (fragmentId: number) => void;
   selectedFragments: Fragment[];
-  resetOptions: any;
-  makePost: any;
-  bookInfo: BooksInfo | undefined;
+  resetOptions: () => void;
+  makePost: MutationFn<MakePostMutation, MakePostMutationVariables>;
 };
 
 type FormValues = { fragments: Fragment[] };
@@ -72,13 +76,9 @@ const SelectionAndControlsBox = ({
   removeFragmentSelection,
   selectedFragments,
   resetOptions,
-  makePost,
-  bookInfo,
   handleSubmit,
   errors,
-  isSubmitting,
   setFieldValue,
-  isValid,
   resetForm
 }: FormikProps<FormValues> & Props) => {
   useEffect(() => {
@@ -88,8 +88,6 @@ const SelectionAndControlsBox = ({
       setFieldValue('fragments', selectedFragments);
     }
   }, [selectedFragments]);
-
-  const anyHandleSubmit = handleSubmit as any;
 
   return (
     <StyledResultAndControlsBox>
@@ -114,10 +112,10 @@ const SelectionAndControlsBox = ({
           </ErrorBox>
         )}
         <StyledButtonsBox>
-          <button type="submit" onClick={resetOptions}>
+          <button type="submit" onClick={() => resetOptions()}>
             Clear
           </button>
-          <button type="submit" onClick={anyHandleSubmit}>
+          <button type="submit" onClick={() => handleSubmit()}>
             Submit
           </button>
         </StyledButtonsBox>
@@ -179,7 +177,7 @@ export default withFormik<Props, FormValues>({
     } catch (errors) {
       setErrors(errors);
     } finally {
-      setSubmitting(false);
+      setSubmitting(false); // is async handleSubmit yet supported for withFormik?
     }
   }
 })(SelectionAndControlsBox);

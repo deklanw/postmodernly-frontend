@@ -1,12 +1,10 @@
 import React from 'react';
-import { graphql, compose, MutationFn } from 'react-apollo';
-import { withFormik, FormikProps, Field, Form } from 'formik';
-import { InputField, GenericFormBox, loginValidation } from './shared/input';
-import { LOGIN, ME_QUERY } from '../graphql/graphql';
-import {
-  LoginUserMutation,
-  LoginUserMutationVariables
-} from '../generated/graphql';
+import { RouteComponentProps } from 'react-router-dom';
+import { FormikConfig, Formik } from 'formik';
+
+import { GenericFormBox, loginValidation, MyTextField } from './shared/input';
+import { ME_QUERY } from '../graphql/graphql';
+import { useLoginUserMutation } from '../generated/graphql';
 import { SERVER_DOWN } from '../util/constants';
 
 interface FormValues {
@@ -15,57 +13,19 @@ interface FormValues {
   password: string;
 }
 
-interface Props {
-  loginUser: MutationFn<LoginUserMutation, LoginUserMutationVariables>;
-  history: any;
-}
+interface Props extends RouteComponentProps {}
 
-const Login = ({
-  isSubmitting,
-  isValid,
-  status
-}: FormikProps<FormValues> & Props) => {
-  return (
-    <GenericFormBox header="Login" status={status}>
-      <Form>
-        <label>
-          Email
-          <Field
-            type="text"
-            name="email"
-            component={InputField}
-            placeholder="Your email"
-          />
-        </label>
-        <label>
-          Password
-          <Field
-            type="password"
-            name="password"
-            component={InputField}
-            placeholder="Your password"
-          />
-        </label>
-        <button type="submit" disabled={isSubmitting || !isValid}>
-          Submit
-        </button>
-      </Form>
-    </GenericFormBox>
-  );
-};
+const Login: React.FC<Props> = ({ history }) => {
+  const loginUser = useLoginUserMutation();
 
-export default compose(
-  graphql(LOGIN, { name: 'loginUser' }),
-  withFormik<Props, FormValues>({
+  const formikConfig: FormikConfig<FormValues> = {
     validationSchema: loginValidation,
-    mapPropsToValues: () => ({ email: '', password: '' }),
-    handleSubmit: async (
-      values,
-      { props, setErrors, setSubmitting, setStatus }
-    ) => {
+    initialValues: { email: '', password: '' },
+    onSubmit: async (values, { setStatus }) => {
+      setStatus({});
       const { email, password } = values;
       try {
-        const response = await props.loginUser({
+        const response = await loginUser({
           variables: { email, password },
           update: (store, { data }) => {
             if (!data || !data.login) {
@@ -87,7 +47,7 @@ export default compose(
         });
 
         if (response && response.data && response.data.login) {
-          props.history.push('/');
+          history.push('/');
         }
         if (response && response.data && !response.data.login) {
           setStatus({
@@ -98,9 +58,35 @@ export default compose(
         setStatus({
           error: SERVER_DOWN
         });
-      } finally {
-        setSubmitting(false);
       }
     }
-  })
-)(Login);
+  };
+
+  return (
+    <Formik {...formikConfig}>
+      {({ isSubmitting, isValid, handleSubmit, status }) => (
+        <GenericFormBox header="Login" status={status}>
+          <form onSubmit={handleSubmit}>
+            <MyTextField
+              label="Email"
+              type="text"
+              name="email"
+              placeholder="Your email"
+            />
+            <MyTextField
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Your password"
+            />
+            <button type="submit" disabled={isSubmitting || !isValid}>
+              Submit
+            </button>
+          </form>
+        </GenericFormBox>
+      )}
+    </Formik>
+  );
+};
+
+export default Login;
