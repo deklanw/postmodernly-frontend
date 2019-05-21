@@ -78,7 +78,7 @@ const Context = styled.div<{ visible: boolean }>`
   padding: 80px 55px;
   left: 80px;
   top: -100px;
-  width: 450px;
+  width: 500px;
   background: white;
   filter: drop-shadow(9px 6px 20px rgba(0, 0, 0, 0.2));
   z-index: 2;
@@ -162,11 +162,12 @@ const ByAuthorBook = styled.div`
   font-size: 15px;
   text-align: right;
   line-height: 1.3;
+  white-space: nowrap;
 
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  width: 100%;
+  width: 400px;
 `;
 const Author = styled.span`
   position: relative;
@@ -175,14 +176,13 @@ const Author = styled.span`
     font-size: 60px;
     color: #5d5d5d;
     position: absolute;
-    top: -32px;
+    top: -30px;
     left: -40px;
   }
   font-family: 'Spectral Light';
 `;
 const Book = styled.div`
   font-family: 'Spectral Light Italic';
-  width: 70%;
   word-wrap: break-word;
 `;
 
