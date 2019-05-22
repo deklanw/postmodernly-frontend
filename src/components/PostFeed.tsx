@@ -1,11 +1,13 @@
 import React, { createContext, useState } from 'react';
 import styled from '@emotion/styled';
 import dayjs from 'dayjs';
+import { useSubscription } from 'react-apollo-hooks';
+
 import Post from './Post';
 import { useGetPostsWithCursorQuery } from '../generated/graphql';
 import { ExpandAndContractSpinner } from './Spinner';
 import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../util/constants';
-import { GET_POSTS_WITH_CURSOR } from '../graphql/graphql';
+import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../graphql/graphql';
 
 const LoadMoreButton = styled.button`
   font-family: 'Spectral Regular';
@@ -60,8 +62,32 @@ const PostFeed = () => {
     close: () => console.log('Initial')
   });
 
+  const [areMorePosts, setAreMorePosts] = useState(true);
+
   const { data, error, loading, fetchMore } = useGetPostsWithCursorQuery({
     variables: { limit: POSTS_FEED_LIMIT, cursor: null }
+  });
+
+  const {
+    data: subData,
+    error: subError,
+    loading: subLoading
+  } = useSubscription(NEW_POST_SUB, {
+    onSubscriptionData: ({ client, subscriptionData }) => {
+      client.writeQuery({
+        query: GET_POSTS_WITH_CURSOR,
+        variables: { limit: POSTS_FEED_LIMIT, cursor: null },
+        data: {
+          getPostsWithCursor: {
+            ...data!.getPostsWithCursor,
+            posts: [
+              subscriptionData.data.newPost,
+              ...data!.getPostsWithCursor.posts
+            ]
+          }
+        }
+      });
+    }
   });
 
   const errorContent = <span>{`Error! ${error}`}</span>;
@@ -85,6 +111,10 @@ const PostFeed = () => {
           const newPosts = fetchMoreResult!.getPostsWithCursor.posts;
           const newCursor = fetchMoreResult!.getPostsWithCursor.cursor;
 
+          if (newPosts.length === 0) {
+            setAreMorePosts(false);
+          }
+
           return {
             getPostsWithCursor: {
               cursor: newCursor,
@@ -97,7 +127,11 @@ const PostFeed = () => {
 
     buttonStuff = (
       <ButtonContainer>
-        <LoadMoreButton type="submit" onClick={morePosts}>
+        <LoadMoreButton
+          type="submit"
+          onClick={morePosts}
+          disabled={!areMorePosts}
+        >
           Load Older Posts
         </LoadMoreButton>
       </ButtonContainer>
@@ -113,7 +147,7 @@ const PostFeed = () => {
             context: f.fragment.context,
             order: f.order
           }));
-          fragments.sort((a, b) => (a.order > b.order ? 1 : 0));
+          fragments.sort((a, b) => a.order - b.order);
 
           const bookInfo = { book1Info: post.book1, book2Info: post.book2 };
           const date = dayjs(post.created).format(DATE_FORMAT);

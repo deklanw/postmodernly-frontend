@@ -15,46 +15,89 @@ export const LOGOUT = gql`
   }
 `;
 
+const BOOK_OPTIONS = gql`
+  fragment BookOptions on BookFragmentOptions {
+    book {
+      id
+      title
+      author {
+        name
+      }
+    }
+    fragmentOptions {
+      order
+      fragment {
+        id
+        fragmentText
+      }
+    }
+  }
+`;
+
 export const GET_POST_OPTIONS = gql`
   mutation GetPostOptions {
     getPostOptions {
       remainingTime
       postOptions {
         book1Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
         book2Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
       }
     }
   }
+  ${BOOK_OPTIONS}
+`;
+
+const POST_FRAGMENT = gql`
+  fragment PostFragment on Post {
+    id
+    created
+    creator {
+      id
+    }
+    portman {
+      id
+      name
+    }
+    book1 {
+      id
+      title
+      author {
+        name
+      }
+    }
+    book2 {
+      id
+      title
+      author {
+        name
+      }
+    }
+    usedFragments {
+      order
+      fragment {
+        id
+        context
+        fragmentText
+        book {
+          id
+        }
+      }
+    }
+    likeCount
+  }
+`;
+
+export const NEW_POST_SUB = gql`
+  subscription NewPost {
+    newPost {
+      ...PostFragment
+    }
+  }
+  ${POST_FRAGMENT}
 `;
 
 export const GET_POSTS_WITH_CURSOR = gql`
@@ -62,44 +105,11 @@ export const GET_POSTS_WITH_CURSOR = gql`
     getPostsWithCursor(cursor: $cursor, limit: $limit) {
       cursor
       posts {
-        id
-        created
-        creator {
-          id
-        }
-        portman {
-          id
-          name
-        }
-        book1 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        book2 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        usedFragments {
-          order
-          fragment {
-            id
-            context
-            fragmentText
-            book {
-              id
-            }
-          }
-        }
-        likeCount
+        ...PostFragment
       }
     }
   }
+  ${POST_FRAGMENT}
 `;
 
 export const ME_QUERY = gql`
@@ -127,40 +137,15 @@ export const GET_NEW_POST_OPTIONS = gql`
       remainingTime
       postOptions {
         book1Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
         book2Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
       }
     }
   }
+  ${BOOK_OPTIONS}
 `;
 
 export const MAKE_POST = gql`

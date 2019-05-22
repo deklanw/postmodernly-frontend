@@ -237,6 +237,12 @@ const PostCreator = () => {
     }
   };
 
+  const submitted = () => {
+    setSelectedFragments([]);
+    setFragments([]);
+    getNewFragmentOptions();
+  };
+
   const addFragmentSelection = (fragment: Fragment) =>
     setSelectedFragments([...selectedFragments, fragment]);
 
@@ -248,7 +254,7 @@ const PostCreator = () => {
     );
   };
 
-  const resetOptions = () => setSelectedFragments([]);
+  const resetSelected = () => setSelectedFragments([]);
 
   const shuffleFragments = () => {
     setFragments(immutableShuffle(orderedFragments));
@@ -267,7 +273,8 @@ const PostCreator = () => {
           <SelectionAndControlsBox
             removeFragmentSelection={removeFragmentSelection}
             selectedFragments={selectedFragments}
-            resetOptions={resetOptions}
+            resetSelected={resetSelected}
+            submitted={submitted}
             makePost={makePost}
           />
           <OptionsBox

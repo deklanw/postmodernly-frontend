@@ -179,7 +179,7 @@ export type PostOptionsWithTime = {
 
 export type PostsWithCursor = {
   __typename?: 'PostsWithCursor';
-  cursor: Scalars['String'];
+  cursor?: Maybe<Scalars['String']>;
   posts: Array<Post>;
 };
 
@@ -244,6 +244,23 @@ export type LogoutMutation = { __typename?: 'Mutation' } & Pick<
   'logout'
 >;
 
+export type BookOptionsFragment = { __typename?: 'BookFragmentOptions' } & {
+  book: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
+      author: { __typename?: 'Author' } & Pick<Author, 'name'>;
+    };
+  fragmentOptions: Array<
+    { __typename?: 'FragmentOptionUser' } & Pick<
+      FragmentOptionUser,
+      'order'
+    > & {
+        fragment: { __typename?: 'Fragment' } & Pick<
+          Fragment,
+          'id' | 'fragmentText'
+        >;
+      }
+  >;
+};
+
 export type GetPostOptionsMutationVariables = {};
 
 export type GetPostOptionsMutation = { __typename?: 'Mutation' } & {
@@ -253,41 +270,43 @@ export type GetPostOptionsMutation = { __typename?: 'Mutation' } & {
   > & {
       postOptions: Maybe<
         { __typename?: 'PostOptions' } & {
-          book1Options: { __typename?: 'BookFragmentOptions' } & {
-            book: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            fragmentOptions: Array<
-              { __typename?: 'FragmentOptionUser' } & Pick<
-                FragmentOptionUser,
-                'order'
-              > & {
-                  fragment: { __typename?: 'Fragment' } & Pick<
-                    Fragment,
-                    'id' | 'fragmentText'
-                  >;
-                }
-            >;
-          };
-          book2Options: { __typename?: 'BookFragmentOptions' } & {
-            book: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            fragmentOptions: Array<
-              { __typename?: 'FragmentOptionUser' } & Pick<
-                FragmentOptionUser,
-                'order'
-              > & {
-                  fragment: { __typename?: 'Fragment' } & Pick<
-                    Fragment,
-                    'id' | 'fragmentText'
-                  >;
-                }
-            >;
-          };
+          book1Options: {
+            __typename?: 'BookFragmentOptions';
+          } & BookOptionsFragment;
+          book2Options: {
+            __typename?: 'BookFragmentOptions';
+          } & BookOptionsFragment;
         }
       >;
     };
+};
+
+export type PostFragmentFragment = { __typename?: 'Post' } & Pick<
+  Post,
+  'id' | 'created' | 'likeCount'
+> & {
+    creator: Maybe<{ __typename?: 'User' } & Pick<User, 'id'>>;
+    portman: { __typename?: 'Portman' } & Pick<Portman, 'id' | 'name'>;
+    book1: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
+        author: { __typename?: 'Author' } & Pick<Author, 'name'>;
+      };
+    book2: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
+        author: { __typename?: 'Author' } & Pick<Author, 'name'>;
+      };
+    usedFragments: Array<
+      { __typename?: 'PostFragment' } & Pick<PostFragment, 'order'> & {
+          fragment: { __typename?: 'Fragment' } & Pick<
+            Fragment,
+            'id' | 'context' | 'fragmentText'
+          > & { book: { __typename?: 'Book' } & Pick<Book, 'id'> };
+        }
+    >;
+  };
+
+export type NewPostSubscriptionVariables = {};
+
+export type NewPostSubscription = { __typename?: 'Subscription' } & {
+  newPost: { __typename?: 'Post' } & PostFragmentFragment;
 };
 
 export type GetPostsWithCursorQueryVariables = {
@@ -299,28 +318,7 @@ export type GetPostsWithCursorQuery = { __typename?: 'Query' } & {
   getPostsWithCursor: { __typename?: 'PostsWithCursor' } & Pick<
     PostsWithCursor,
     'cursor'
-  > & {
-      posts: Array<
-        { __typename?: 'Post' } & Pick<Post, 'id' | 'created' | 'likeCount'> & {
-            creator: Maybe<{ __typename?: 'User' } & Pick<User, 'id'>>;
-            portman: { __typename?: 'Portman' } & Pick<Portman, 'id' | 'name'>;
-            book1: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            book2: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            usedFragments: Array<
-              { __typename?: 'PostFragment' } & Pick<PostFragment, 'order'> & {
-                  fragment: { __typename?: 'Fragment' } & Pick<
-                    Fragment,
-                    'id' | 'context' | 'fragmentText'
-                  > & { book: { __typename?: 'Book' } & Pick<Book, 'id'> };
-                }
-            >;
-          }
-      >;
-    };
+  > & { posts: Array<{ __typename?: 'Post' } & PostFragmentFragment> };
 };
 
 export type MeQueryVariables = {};
@@ -346,38 +344,12 @@ export type GetNewPostOptionsMutation = { __typename?: 'Mutation' } & {
   > & {
       postOptions: Maybe<
         { __typename?: 'PostOptions' } & {
-          book1Options: { __typename?: 'BookFragmentOptions' } & {
-            book: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            fragmentOptions: Array<
-              { __typename?: 'FragmentOptionUser' } & Pick<
-                FragmentOptionUser,
-                'order'
-              > & {
-                  fragment: { __typename?: 'Fragment' } & Pick<
-                    Fragment,
-                    'id' | 'fragmentText'
-                  >;
-                }
-            >;
-          };
-          book2Options: { __typename?: 'BookFragmentOptions' } & {
-            book: { __typename?: 'Book' } & Pick<Book, 'id' | 'title'> & {
-                author: { __typename?: 'Author' } & Pick<Author, 'name'>;
-              };
-            fragmentOptions: Array<
-              { __typename?: 'FragmentOptionUser' } & Pick<
-                FragmentOptionUser,
-                'order'
-              > & {
-                  fragment: { __typename?: 'Fragment' } & Pick<
-                    Fragment,
-                    'id' | 'fragmentText'
-                  >;
-                }
-            >;
-          };
+          book1Options: {
+            __typename?: 'BookFragmentOptions';
+          } & BookOptionsFragment;
+          book2Options: {
+            __typename?: 'BookFragmentOptions';
+          } & BookOptionsFragment;
         }
       >;
     };
@@ -391,7 +363,63 @@ export type MakePostMutation = { __typename?: 'Mutation' } & Pick<
   Mutation,
   'makePost'
 >;
-
+export const BookOptionsFragmentDoc = gql`
+  fragment BookOptions on BookFragmentOptions {
+    book {
+      id
+      title
+      author {
+        name
+      }
+    }
+    fragmentOptions {
+      order
+      fragment {
+        id
+        fragmentText
+      }
+    }
+  }
+`;
+export const PostFragmentFragmentDoc = gql`
+  fragment PostFragment on Post {
+    id
+    created
+    creator {
+      id
+    }
+    portman {
+      id
+      name
+    }
+    book1 {
+      id
+      title
+      author {
+        name
+      }
+    }
+    book2 {
+      id
+      title
+      author {
+        name
+      }
+    }
+    usedFragments {
+      order
+      fragment {
+        id
+        context
+        fragmentText
+        book {
+          id
+        }
+      }
+    }
+    likeCount
+  }
+`;
 export const LoginUserDocument = gql`
   mutation LoginUser($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -443,40 +471,15 @@ export const GetPostOptionsDocument = gql`
       remainingTime
       postOptions {
         book1Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
         book2Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
       }
     }
   }
+  ${BookOptionsFragmentDoc}
 `;
 export type GetPostOptionsMutationFn = ReactApollo.MutationFn<
   GetPostOptionsMutation,
@@ -494,49 +497,36 @@ export function useGetPostOptionsMutation(
     GetPostOptionsMutationVariables
   >(GetPostOptionsDocument, baseOptions);
 }
+export const NewPostDocument = gql`
+  subscription NewPost {
+    newPost {
+      ...PostFragment
+    }
+  }
+  ${PostFragmentFragmentDoc}
+`;
+
+export function useNewPostSubscription(
+  baseOptions?: ReactApolloHooks.SubscriptionHookOptions<
+    NewPostSubscription,
+    NewPostSubscriptionVariables
+  >
+) {
+  return ReactApolloHooks.useSubscription<
+    NewPostSubscription,
+    NewPostSubscriptionVariables
+  >(NewPostDocument, baseOptions);
+}
 export const GetPostsWithCursorDocument = gql`
   query GetPostsWithCursor($cursor: String, $limit: Int!) {
     getPostsWithCursor(cursor: $cursor, limit: $limit) {
       cursor
       posts {
-        id
-        created
-        creator {
-          id
-        }
-        portman {
-          id
-          name
-        }
-        book1 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        book2 {
-          id
-          title
-          author {
-            name
-          }
-        }
-        usedFragments {
-          order
-          fragment {
-            id
-            context
-            fragmentText
-            book {
-              id
-            }
-          }
-        }
-        likeCount
+        ...PostFragment
       }
     }
   }
+  ${PostFragmentFragmentDoc}
 `;
 
 export function useGetPostsWithCursorQuery(
@@ -597,40 +587,15 @@ export const GetNewPostOptionsDocument = gql`
       remainingTime
       postOptions {
         book1Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
         book2Options {
-          book {
-            id
-            title
-            author {
-              name
-            }
-          }
-          fragmentOptions {
-            order
-            fragment {
-              id
-              fragmentText
-            }
-          }
+          ...BookOptions
         }
       }
     }
   }
+  ${BookOptionsFragmentDoc}
 `;
 export type GetNewPostOptionsMutationFn = ReactApollo.MutationFn<
   GetNewPostOptionsMutation,

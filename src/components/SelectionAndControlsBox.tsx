@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { withFormik, FormikProps } from 'formik';
 import { MutationFn } from 'react-apollo-hooks';
 
 import StyledButtonsBox from '../StyledButtonsBox';
@@ -53,7 +52,7 @@ const StyledResultAndControlsBox = styled.div`
 
 const ErrorBox = styled.div`
   font-family: 'Spectral Medium';
-  font-size: 14px;
+  font-size: 15px;
   color: ${ERROR_RED};
   justify-self: flex-end;
   margin-bottom: 10px;
@@ -66,28 +65,73 @@ const ErrorsAndButtons = styled.div`
 type Props = {
   removeFragmentSelection: (fragmentId: number) => void;
   selectedFragments: Fragment[];
-  resetOptions: () => void;
+  resetSelected: () => void;
+  submitted: () => void;
   makePost: MutationFn<MakePostMutation, MakePostMutationVariables>;
 };
 
-type FormValues = { fragments: Fragment[] };
+type FormErrors = string[];
+
+const validate = (fragments: Fragment[]) => {
+  const errors: FormErrors = [];
+
+  const totalLength = fragments
+    .map(el => el.fragmentText.length)
+    .reduce((acc, x) => x + acc, 0);
+
+  if (totalLength > MAX_POST_LENGTH) {
+    errors.push(`Posts can't be longer than ${MAX_POST_LENGTH} characters.`);
+  }
+
+  const oneOfEach = new Set(fragments.map(el => el.bookId)).size === 2;
+
+  if (!oneOfEach) {
+    errors.push(
+      'Posts must use at least one Fragment from each author (color).'
+    );
+  }
+
+  return errors;
+};
 
 const SelectionAndControlsBox = ({
   removeFragmentSelection,
   selectedFragments,
-  resetOptions,
-  handleSubmit,
-  errors,
-  setFieldValue,
-  resetForm
-}: FormikProps<FormValues> & Props) => {
+  resetSelected,
+  submitted,
+  makePost
+}: Props) => {
+  const [errors, setErrors] = useState<FormErrors>([]);
+
   useEffect(() => {
-    if (selectedFragments.length === 0) {
-      resetForm(); // does this get called one extra time initially?
-    } else {
-      setFieldValue('fragments', selectedFragments);
+    if (selectedFragments.length !== 0) {
+      setErrors(validate(selectedFragments));
+    } else if (errors.length !== 0) {
+      setErrors([]);
     }
   }, [selectedFragments]);
+
+  const handleSubmit = async () => {
+    try {
+      const data = {
+        fragments: selectedFragments.map((el, i) => ({
+          fragmentId: el.fragmentId,
+          order: i
+        }))
+      };
+      const response = await makePost({
+        variables: { data }
+      });
+
+      if (response.data.makePost) {
+        submitted();
+      } else {
+        // indicate some kind of error
+      }
+    } catch (e) {
+      // setErrors(errors);
+    }
+  };
 
   return (
     <StyledResultAndControlsBox>
@@ -104,18 +148,18 @@ const SelectionAndControlsBox = ({
         ))}
       </SelectionBox>
       <ErrorsAndButtons>
-        {errors.fragments && (
+        {errors && (
           <ErrorBox>
-            {errors.fragments.map(e => (
-              <div>* {e}</div>
+            {errors.map(e => (
+              <div key={e}>* {e}</div>
             ))}
           </ErrorBox>
         )}
         <StyledButtonsBox>
-          <button type="submit" onClick={() => resetOptions()}>
+          <button type="submit" onClick={resetSelected}>
             Clear
           </button>
-          <button type="submit" onClick={() => handleSubmit()}>
+          <button type="submit" onClick={handleSubmit}>
             Submit
           </button>
         </StyledButtonsBox>
@@ -124,60 +168,4 @@ const SelectionAndControlsBox = ({
   );
 };
 
-type Errors = {
-  [key: string]: string[];
-};
-
-const validate = ({ fragments }: FormValues) => {
-  const errors: Errors = {};
-
-  const totalLength = fragments
-    .map(el => el.fragmentText.length)
-    .reduce((acc, x) => x + acc);
-
-  if (totalLength > MAX_POST_LENGTH) {
-    errors.fragments = [
-      ...(errors.fragments || []),
-      `Posts can't be longer than ${MAX_POST_LENGTH} characters.`
-    ];
-  }
-
-  const oneOfEach = new Set(fragments.map(el => el.bookId)).size === 2;
-
-  if (!oneOfEach) {
-    errors.fragments = [
-      ...(errors.fragments || []),
-      'Posts must use at least one Fragment from each author (color).'
-    ];
-  }
-
-  return errors;
-};
-
-export default withFormik<Props, FormValues>({
-  validate,
-  mapPropsToValues: () => ({ fragments: [] }),
-  handleSubmit: async (values, { props, setErrors, setSubmitting }) => {
-    try {
-      const data = {
-        fragments: values.fragments.map((el, i) => ({
-          fragmentId: el.fragmentId,
-          order: i
-        }))
-      };
-      const response = await props.makePost({
-        variables: { data }
-      });
-
-      if (response.data.makePost) {
-        props.resetOptions();
-      } else {
-        // indicate some kind of error
-      }
-    } catch (errors) {
-      setErrors(errors);
-    } finally {
-      setSubmitting(false); // is async handleSubmit yet supported for withFormik?
-    }
-  }
-})(SelectionAndControlsBox);
+export default SelectionAndControlsBox;

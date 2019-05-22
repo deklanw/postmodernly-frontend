@@ -6,15 +6,11 @@ const Container = styled.div`
   flex-direction: horizontal;
   justify-content: center;
   align-items: center;
-  margin: 30px 30px;
+  margin: 80px 30px;
 `;
 
 const Footer = () => {
-  return (
-    <Container>
-      <div>Stuff goes here</div>
-    </Container>
-  );
+  return <Container />;
 };
 
 export default Footer;
