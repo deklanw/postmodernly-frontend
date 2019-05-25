@@ -88,6 +88,8 @@ const POST_FRAGMENT = gql`
       }
     }
     likeCount
+    currentUserLiked
+    currentUserOwns
   }
 `;
 
@@ -128,6 +130,18 @@ export const REGISTER_USER = gql`
       email
       created
     }
+  }
+`;
+
+export const LIKE_POST = gql`
+  mutation LikePost($data: UserPostLikeInput!) {
+    likePost(data: $data)
+  }
+`;
+
+export const DELETE_POST = gql`
+  mutation DeletePost($postId: Int!) {
+    deletePost(postId: $postId)
   }
 `;
 

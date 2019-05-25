@@ -8,6 +8,7 @@ import { useGetPostsWithCursorQuery } from '../generated/graphql';
 import { ExpandAndContractSpinner } from './Spinner';
 import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../util/constants';
 import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../graphql/graphql';
+import GenericError from './GenericError';
 
 const LoadMoreButton = styled.button`
   font-family: 'Spectral Regular';
@@ -59,7 +60,7 @@ export const ClosePopup = createContext({
 
 const PostFeed = () => {
   const [closePopup, setClosePopup] = useState({
-    close: () => console.log('Initial')
+    close: () => null
   });
 
   const [areMorePosts, setAreMorePosts] = useState(true);
@@ -90,15 +91,13 @@ const PostFeed = () => {
     }
   });
 
-  const errorContent = <span>{`Error! ${error}`}</span>;
-
   let innerContent = null;
   let buttonStuff = null;
 
   if (loading) {
-    innerContent = <ExpandAndContractSpinner dimension={100} />;
+    innerContent = <ExpandAndContractSpinner dimension={100} margin={200} />;
   } else if (error) {
-    innerContent = errorContent;
+    innerContent = <GenericError />;
   } else if (data) {
     const { posts, cursor } = data.getPostsWithCursor;
 
@@ -139,39 +138,55 @@ const PostFeed = () => {
 
     innerContent = (
       <ClosePopup.Provider value={{ closePopup, setClosePopup }}>
-        {posts.map(post => {
-          const fragments = post.usedFragments.map(f => ({
-            bookId: f.fragment.book.id,
-            fragmentId: f.fragment.id,
-            fragmentText: f.fragment.fragmentText,
-            context: f.fragment.context,
-            order: f.order
-          }));
-          fragments.sort((a, b) => a.order - b.order);
+        {posts.map(
+          ({
+            id,
+            usedFragments,
+            book1,
+            book2,
+            portman,
+            created,
+            likeCount,
+            currentUserLiked,
+            currentUserOwns
+          }) => {
+            const fragments = usedFragments.map(f => ({
+              bookId: f.fragment.book.id,
+              fragmentId: f.fragment.id,
+              fragmentText: f.fragment.fragmentText,
+              context: f.fragment.context,
+              order: f.order
+            }));
+            fragments.sort((a, b) => a.order - b.order);
 
-          const bookInfo = { book1Info: post.book1, book2Info: post.book2 };
-          const date = dayjs(post.created).format(DATE_FORMAT);
+            const bookInfo = { book1Info: book1, book2Info: book2 };
+            const date = dayjs(created).format(DATE_FORMAT);
 
-          let initial1 = post.book1.author.name.split(' ').pop()![0];
-          let initial2 = post.book2.author.name.split(' ').pop()![0];
+            let initial1 = book1.author.name.split(' ').pop()![0];
+            let initial2 = book2.author.name.split(' ').pop()![0];
 
-          if (initial2.toLowerCase() === post.portman.name[0]) {
-            [initial2, initial1] = [initial1, initial2];
+            // initials in right order corresponding to portman
+            if (initial2.toLowerCase() === portman.name[0]) {
+              [initial2, initial1] = [initial1, initial2];
+            }
+
+            return (
+              <Post
+                key={id}
+                postId={id}
+                date={date}
+                initial1={initial1}
+                initial2={initial2}
+                portman={portman.name}
+                fragments={fragments}
+                likeCount={likeCount}
+                bookInfo={bookInfo}
+                currentUserLiked={currentUserLiked}
+                currentUserOwns={currentUserOwns}
+              />
+            );
           }
-
-          return (
-            <Post
-              date={date}
-              initial1={initial1}
-              initial2={initial2}
-              portman={post.portman.name}
-              fragments={fragments}
-              likeCount={post.likeCount}
-              bookInfo={bookInfo}
-              key={post.id}
-            />
-          );
-        })}
+        )}
       </ClosePopup.Provider>
     );
   }

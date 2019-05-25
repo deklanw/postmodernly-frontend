@@ -20,12 +20,17 @@ const bounce = keyframes`
   }
 `;
 
-const ExpandAndContract = styled.div<{ dimension: number }>`
+type ExpandAndContractProps = {
+  dimension: number;
+  margin: number;
+};
+
+const ExpandAndContract = styled.div<ExpandAndContractProps>`
   width: ${({ dimension }) => dimension}px;
   height: ${({ dimension }) => dimension}px;
 
   position: relative;
-  margin: 100px auto;
+  margin: ${({ margin }) => margin}px auto;
 
   & > :first-of-type,
   & > :last-of-type {
@@ -46,12 +51,11 @@ const ExpandAndContract = styled.div<{ dimension: number }>`
   }
 `;
 
-export const ExpandAndContractSpinner = ({
-  dimension
-}: {
-  dimension: number;
+export const ExpandAndContractSpinner: React.FC<ExpandAndContractProps> = ({
+  dimension,
+  margin
 }) => (
-  <ExpandAndContract dimension={dimension}>
+  <ExpandAndContract dimension={dimension} margin={margin}>
     <div />
     <div />
   </ExpandAndContract>

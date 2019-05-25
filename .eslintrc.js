@@ -1,16 +1,32 @@
 module.exports = {
-  extends: ['airbnb', 'plugin:prettier/recommended'],
+  extends: [
+    'airbnb',
+    'plugin:@typescript-eslint/recommended',
+    'prettier/@typescript-eslint',
+    'plugin:prettier/recommended'
+  ],
+  plugins: ['react-hooks'],
   parser: '@typescript-eslint/parser',
   rules: {
-    'react/jsx-filename-extension': 0,
-    'no-unused-vars': 0,
-    'react/jsx-one-expression-per-line': 0,
-    'jsx-a11y/label-has-associated-control': 0,
-    'jsx-a11y/label-has-for': 0,
-    'prefer-destructuring': 0,
-    'no-underscore-dangle': 0,
     'react/prop-types': 0,
-    radix: 0
+    'react/jsx-filename-extension': 0,
+    'react/jsx-one-expression-per-line': 0,
+    'no-console': 'warn',
+    'no-unused-vars': 'warn',
+    'jsx-a11y/label-has-associated-control': 'warn',
+    'jsx-a11y/label-has-for': 'warn',
+    'jsx-a11y/accessible-emoji': 'warn',
+    'prefer-destructuring': 'warn',
+    'no-underscore-dangle': 'warn',
+    'no-undef': 'warn',
+    '@typescript-eslint/explicit-function-return-type': {
+      allowTypedFunctionExpressions: true
+    },
+    '@typescript-eslint/prefer-interface': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    radix: 0,
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn'
   },
   settings: {
     'import/resolver': {

@@ -1,6 +1,9 @@
 export const BOOK1_BLUE = '#C9D8F3';
 export const BOOK2_YELLOW = '#F5F2CD';
 
+export const HIGHLIGHT_COLOR_1 = '#ffcbc8';
+export const HIGHLIGHT_COLOR_2 = '#d3ffa8';
+
 export const MAX_POST_LENGTH = 350;
 
 export const DATE_FORMAT = 'MMM D';

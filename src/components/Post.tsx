@@ -1,10 +1,16 @@
 import React, { useState, useContext } from 'react';
 import styled from '@emotion/styled';
+import { useApolloClient } from 'react-apollo-hooks';
+import gql from 'graphql-tag';
+
 import HeartOpenBook from '../assets/svg/HeartOpenBook';
 import { ClosePopup } from './PostFeed';
-
-const highlightColor1 = '#ffcbc8';
-const highlightColor2 = '#d3ffa8';
+import { useLikePostMutation, useMeQuery } from '../generated/graphql';
+import {
+  POSTS_FEED_LIMIT,
+  HIGHLIGHT_COLOR_1,
+  HIGHLIGHT_COLOR_2
+} from '../util/constants';
 
 // ought to do this once. check efficiency
 const splitStringIntoThree = (text: string, search: string) => {
@@ -21,6 +27,9 @@ const splitStringIntoThree = (text: string, search: string) => {
 
   return { pre, middle, post };
 };
+
+const whichBookToColor = (whichBook: boolean) =>
+  whichBook ? HIGHLIGHT_COLOR_1 : HIGHLIGHT_COLOR_2;
 
 const PostContainer = styled.div`
   position: relative;
@@ -63,8 +72,7 @@ const FragmentText = styled.span<{ whichBook: boolean }>`
   color: #161616;
   overflow-wrap: normal;
   &:hover {
-    background-color: ${({ whichBook }) =>
-      whichBook ? highlightColor1 : highlightColor2};
+    background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
   }
 `;
 
@@ -91,7 +99,7 @@ const Context = styled.div<{ visible: boolean }>`
 
   &:before {
     font-size: 65px;
-    content: '“ ';
+    content: '“';
     position: absolute;
     left: 20px;
     top: 20px;
@@ -100,11 +108,10 @@ const Context = styled.div<{ visible: boolean }>`
 `;
 
 const HighlightedOccurrence = styled.span<{ whichBook: boolean }>`
-  background-color: ${({ whichBook }) =>
-    whichBook ? highlightColor1 : highlightColor2};
+  background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
 `;
 
-export const LikeContainer = styled.div`
+export const LikeContainer = styled.div<{ liked: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -115,6 +122,7 @@ export const LikeContainer = styled.div`
   bottom: 0;
   right: 5px;
   cursor: pointer;
+  fill: ${({ liked }) => (liked ? 'red' : 'black')};
 
   &:hover svg {
     fill: red;
@@ -259,19 +267,64 @@ interface Props {
   likeCount: number;
   portman: string;
   date: string;
+  currentUserLiked: boolean;
+  currentUserOwns: boolean;
+  postId: string;
 }
 
-const Post = ({
+const Post: React.FC<Props> = ({
   bookInfo,
   fragments,
   initial1,
   initial2,
   likeCount,
   portman,
-  date
-}: Props) => {
+  currentUserLiked,
+  currentUserOwns,
+  date,
+  postId
+}) => {
   const dot = '·';
+  const cacheId = `Post:${postId}`; // default naming
 
+  const { data, error, loading } = useMeQuery();
+  const client = useApolloClient();
+
+  const loggedOut = !(data && data.me);
+  const likePost = useLikePostMutation();
+
+  const clickLike = async () => {
+    if (!loggedOut && !currentUserOwns) {
+      await likePost({
+        variables: {
+          data: {
+            postId: parseInt(postId),
+            like: !currentUserLiked
+          }
+        }
+      });
+      client.writeFragment({
+        id: cacheId,
+        fragment: gql`
+          fragment LikeUpdateFragment on GetPostsWithCursor {
+            currentUserLiked
+            likeCount
+          }
+        `,
+        data: {
+          currentUserLiked: !currentUserLiked,
+          likeCount: likeCount + (currentUserLiked ? -1 : 1),
+          __typename: 'GetPostsWithCursor'
+        }
+        // variables: {
+        //   cursor: null,
+        //   limit: POSTS_FEED_LIMIT
+        // }
+      });
+    } else {
+      console.log('Cannot like post', loggedOut, currentUserOwns);
+    }
+  };
   return (
     <PostContainer>
       <InitialCircle initial1={initial1} initial2={initial2} />
@@ -296,7 +349,7 @@ const Post = ({
           })}
         </FragmentContainer>
       </ContentContainer>
-      <LikeContainer>
+      <LikeContainer onClick={clickLike} liked={currentUserLiked}>
         <HeartOpenBook size="25px" />
         <LikeCount>{likeCount}</LikeCount>
       </LikeContainer>

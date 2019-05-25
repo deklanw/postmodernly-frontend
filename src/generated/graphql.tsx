@@ -149,6 +149,8 @@ export type Post = {
   portman: Portman;
   book1: Book;
   book2: Book;
+  currentUserLiked: Scalars['Boolean'];
+  currentUserOwns: Scalars['Boolean'];
   likeCount: Scalars['Int'];
   usedFragments: Array<PostFragment>;
 };
@@ -283,7 +285,7 @@ export type GetPostOptionsMutation = { __typename?: 'Mutation' } & {
 
 export type PostFragmentFragment = { __typename?: 'Post' } & Pick<
   Post,
-  'id' | 'created' | 'likeCount'
+  'id' | 'created' | 'likeCount' | 'currentUserLiked' | 'currentUserOwns'
 > & {
     creator: Maybe<{ __typename?: 'User' } & Pick<User, 'id'>>;
     portman: { __typename?: 'Portman' } & Pick<Portman, 'id' | 'name'>;
@@ -334,6 +336,24 @@ export type RegisterMutationVariables = {
 export type RegisterMutation = { __typename?: 'Mutation' } & {
   register: { __typename?: 'User' } & Pick<User, 'id' | 'email' | 'created'>;
 };
+
+export type LikePostMutationVariables = {
+  data: UserPostLikeInput;
+};
+
+export type LikePostMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'likePost'
+>;
+
+export type DeletePostMutationVariables = {
+  postId: Scalars['Int'];
+};
+
+export type DeletePostMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'deletePost'
+>;
 
 export type GetNewPostOptionsMutationVariables = {};
 
@@ -418,6 +438,8 @@ export const PostFragmentFragmentDoc = gql`
       }
     }
     likeCount
+    currentUserLiked
+    currentUserOwns
   }
 `;
 export const LoginUserDocument = gql`
@@ -580,6 +602,48 @@ export function useRegisterMutation(
     RegisterMutation,
     RegisterMutationVariables
   >(RegisterDocument, baseOptions);
+}
+export const LikePostDocument = gql`
+  mutation LikePost($data: UserPostLikeInput!) {
+    likePost(data: $data)
+  }
+`;
+export type LikePostMutationFn = ReactApollo.MutationFn<
+  LikePostMutation,
+  LikePostMutationVariables
+>;
+
+export function useLikePostMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    LikePostMutation,
+    LikePostMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    LikePostMutation,
+    LikePostMutationVariables
+  >(LikePostDocument, baseOptions);
+}
+export const DeletePostDocument = gql`
+  mutation DeletePost($postId: Int!) {
+    deletePost(postId: $postId)
+  }
+`;
+export type DeletePostMutationFn = ReactApollo.MutationFn<
+  DeletePostMutation,
+  DeletePostMutationVariables
+>;
+
+export function useDeletePostMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    DeletePostMutation,
+    DeletePostMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    DeletePostMutation,
+    DeletePostMutationVariables
+  >(DeletePostDocument, baseOptions);
 }
 export const GetNewPostOptionsDocument = gql`
   mutation GetNewPostOptions {

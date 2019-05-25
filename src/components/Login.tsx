@@ -13,9 +13,7 @@ interface FormValues {
   password: string;
 }
 
-interface Props extends RouteComponentProps {}
-
-const Login: React.FC<Props> = ({ history }) => {
+const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const loginUser = useLoginUserMutation();
 
   const formikConfig: FormikConfig<FormValues> = {
@@ -65,7 +63,7 @@ const Login: React.FC<Props> = ({ history }) => {
   return (
     <Formik {...formikConfig}>
       {({ isSubmitting, isValid, handleSubmit, status }) => (
-        <GenericFormBox header="Login" status={status}>
+        <GenericFormBox header="Login" status={status} loading={isSubmitting}>
           <form onSubmit={handleSubmit}>
             <MyTextField
               label="Email"

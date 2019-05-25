@@ -1,17 +1,15 @@
 import { useEffect } from 'react';
 import { useApolloClient } from 'react-apollo-hooks';
-import {
-  useLogoutMutation,
-  LogoutMutation,
-  LogoutMutationVariables
-} from '../generated/graphql';
+import { RouteComponentProps } from 'react-router-dom';
 
-const Logout = ({ history }: { history: any }) => {
+import { useLogoutMutation } from '../generated/graphql';
+
+const Logout: React.FC<RouteComponentProps> = ({ history }) => {
   const logout = useLogoutMutation();
   const client = useApolloClient();
 
   const logoutSequence = async () => {
-    const result = await logout();
+    await logout();
     await client.resetStore();
     history.push('/');
   };

@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
-import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
@@ -91,13 +90,11 @@ const LoggedInContainer = () => {
 const App = () => {
   return (
     <>
-      <ApolloProvider client={client}>
-        <ApolloHooksProvider client={client}>
-          <Router>
-            <LoggedInContainer />
-          </Router>
-        </ApolloHooksProvider>
-      </ApolloProvider>
+      <ApolloHooksProvider client={client}>
+        <Router>
+          <LoggedInContainer />
+        </Router>
+      </ApolloHooksProvider>
     </>
   );
 };

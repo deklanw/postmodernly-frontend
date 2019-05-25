@@ -17,9 +17,7 @@ interface FormValues {
   passwordConfirm: string;
 }
 
-interface Props extends RouteComponentProps {}
-
-const Register: React.FC<Props> = ({ history }) => {
+const Register: React.FC<RouteComponentProps> = ({ history }) => {
   const registerUser = useRegisterMutation();
 
   const formikConfig: FormikConfig<FormValues> = {
@@ -36,8 +34,6 @@ const Register: React.FC<Props> = ({ history }) => {
 
         if (response && response.data) {
           history.push('/');
-        } else {
-          setStatus({ error: SOMETHING_WENT_WRONG });
         }
       } catch (errors) {
         setStatus({
@@ -50,7 +46,7 @@ const Register: React.FC<Props> = ({ history }) => {
   return (
     <Formik {...formikConfig}>
       {({ isSubmitting, isValid, handleSubmit, status }) => (
-        <GenericFormBox header="Sign-up" status={status}>
+        <GenericFormBox header="Sign-up" status={status} loading={isSubmitting}>
           <form onSubmit={handleSubmit}>
             <MyTextField
               label="Email"

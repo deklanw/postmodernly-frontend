@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { MutationFn } from 'react-apollo-hooks';
 
 import StyledButtonsBox from '../StyledButtonsBox';
 import {
@@ -11,10 +10,6 @@ import {
 } from '../util/constants';
 import { Fragment } from './shared/types';
 import { ExpandAndContractSpinner, CircleExpandAndDisappear } from './Spinner';
-import {
-  MakePostMutation,
-  MakePostMutationVariables
-} from '../generated/graphql';
 
 const RemoveSelectionX = styled.div`
   display: inline-block;
@@ -61,15 +56,6 @@ const ErrorBox = styled.div`
 const ErrorsAndButtons = styled.div`
   margin-top: auto;
 `;
-
-type Props = {
-  removeFragmentSelection: (fragmentId: number) => void;
-  selectedFragments: Fragment[];
-  resetSelected: () => void;
-  submitted: () => void;
-  makePost: MutationFn<MakePostMutation, MakePostMutationVariables>;
-};
-
 type FormErrors = string[];
 
 const validate = (fragments: Fragment[]) => {
@@ -94,13 +80,21 @@ const validate = (fragments: Fragment[]) => {
   return errors;
 };
 
-const SelectionAndControlsBox = ({
+type Props = {
+  removeFragmentSelection: (fragmentId: number) => void;
+  selectedFragments: Fragment[];
+  resetSelected: () => void;
+  handleSubmit: () => void;
+  loading: boolean;
+};
+
+const SelectionAndControlsBox: React.FC<Props> = ({
   removeFragmentSelection,
   selectedFragments,
   resetSelected,
-  submitted,
-  makePost
-}: Props) => {
+  handleSubmit,
+  loading
+}) => {
   const [errors, setErrors] = useState<FormErrors>([]);
 
   useEffect(() => {
@@ -111,30 +105,12 @@ const SelectionAndControlsBox = ({
     }
   }, [selectedFragments]);
 
-  const handleSubmit = async () => {
-    try {
-      const data = {
-        fragments: selectedFragments.map((el, i) => ({
-          fragmentId: el.fragmentId,
-          order: i
-        }))
-      };
-      const response = await makePost({
-        variables: { data }
-      });
+  let content = null;
 
-      if (response.data.makePost) {
-        submitted();
-      } else {
-        // indicate some kind of error
-      }
-    } catch (e) {
-      // setErrors(errors);
-    }
-  };
-
-  return (
-    <StyledResultAndControlsBox>
+  if (loading) {
+    content = <ExpandAndContractSpinner dimension={75} margin={50} />;
+  } else {
+    content = (
       <SelectionBox>
         {selectedFragments.map(el => (
           <SelectedOption whichBook={el.whichBook} key={el.fragmentId}>
@@ -147,6 +123,12 @@ const SelectionAndControlsBox = ({
           </SelectedOption>
         ))}
       </SelectionBox>
+    );
+  }
+
+  return (
+    <StyledResultAndControlsBox>
+      {content}
       <ErrorsAndButtons>
         {errors && (
           <ErrorBox>
@@ -156,10 +138,10 @@ const SelectionAndControlsBox = ({
           </ErrorBox>
         )}
         <StyledButtonsBox>
-          <button type="submit" onClick={resetSelected}>
+          <button type="submit" onClick={resetSelected} disabled={loading}>
             Clear
           </button>
-          <button type="submit" onClick={handleSubmit}>
+          <button type="submit" onClick={handleSubmit} disabled={loading}>
             Submit
           </button>
         </StyledButtonsBox>

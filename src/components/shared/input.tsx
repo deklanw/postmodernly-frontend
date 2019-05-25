@@ -3,6 +3,7 @@ import { FieldProps, useField } from 'formik';
 import styled from '@emotion/styled';
 import * as yup from 'yup';
 import { ERROR_RED } from '../../util/constants';
+import { ExpandAndContractSpinner } from '../Spinner';
 
 const EMAIL_NOT_LONG_ENOUGH = 'Email must be at least 3 characters.';
 const PASSWORD_NOT_LONG_ENOUGH = 'Password must be at least 3 characters.';
@@ -40,7 +41,8 @@ export const StyledInput = styled.input<any>`
   margin: 8px 0;
   border-radius: 2px;
   background-color: #f2f2f2;
-  border: ${({ error }) => (error ? `1px solid ${ERROR_RED}` : 'none')};
+  outline: ${({ error }) => (error ? `1px solid ${ERROR_RED}` : 'unset')};
+  border: none;
   font-family: 'Spectral Light';
   font-size: 16px;
   color: #333333;
@@ -64,7 +66,7 @@ const Container = styled.div`
 `;
 
 const FormBox = styled.div`
-  margin-top: 100px;
+  margin-top: 20px;
   text-align: center;
   width: 600px;
   padding: 50px;
@@ -126,14 +128,28 @@ export const MyTextField: React.FC<HTMLProps<HTMLInputElement>> = ({
   );
 };
 
-export const GenericFormBox = (props: any) => {
-  const { header, status, children } = props;
+const LoadingOrStatusBox = styled.div`
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const GenericFormBox: React.FC<{
+  header: string;
+  status: any;
+  children: any;
+  loading: boolean;
+}> = ({ header, status, children, loading }) => {
   return (
     <Container>
       <FormBox>
         <Header>{header}</Header>
         {children}
-        {status && <StatusError>{status.error}</StatusError>}
+        <LoadingOrStatusBox>
+          {status && <StatusError>{status.error}</StatusError>}
+          {loading && <ExpandAndContractSpinner dimension={50} margin={10} />}
+        </LoadingOrStatusBox>
       </FormBox>
     </Container>
   );
