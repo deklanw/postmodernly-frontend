@@ -66,6 +66,7 @@ const Header = () => {
   if (!loggedOut) {
     content = (
       <>
+        <LinkItem to="/">{data!.me!.email}</LinkItem>
         <LinkItem to="/logout">Logout</LinkItem>
       </>
     );
