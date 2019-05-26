@@ -3,3 +3,5 @@ react-app-env.d.ts
 generated
 build
 node_modules
+*.js
+dist
