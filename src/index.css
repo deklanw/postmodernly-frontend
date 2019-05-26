@@ -9,24 +9,3 @@ html {
 *:after {
   box-sizing: inherit;
 }
-
-@font-face {
-  font-family: 'Spectral Light Italic';
-  src: url(./assets/fonts/Spectral-LightItalic.otf);
-}
-@font-face {
-  font-family: 'Spectral Light';
-  src: url(./assets/fonts/Spectral-Light.otf);
-}
-@font-face {
-  font-family: 'Spectral Regular';
-  src: url(./assets/fonts/Spectral-Regular.otf);
-}
-@font-face {
-  font-family: 'Spectral Medium';
-  src: url(./assets/fonts/Spectral-Medium.otf);
-}
-@font-face {
-  font-family: 'Spectral Bold';
-  src: url(./assets/fonts/Spectral-Bold.otf);
-}
