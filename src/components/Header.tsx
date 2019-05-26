@@ -18,14 +18,16 @@ const Logo = styled.span`
 `;
 
 const Heading = styled(Link)`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 36px;
   color: #333333;
   text-decoration: none;
 `;
 
 const Subheading = styled.span`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 18px;
   color: #4d4d4d;
 
@@ -42,7 +44,8 @@ const Links = styled.span`
 `;
 
 const LinkItem = styled(Link)`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 20px;
   text-decoration: none;
   color: #333333;

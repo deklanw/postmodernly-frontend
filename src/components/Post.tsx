@@ -42,7 +42,8 @@ const PostContainer = styled.div`
 `;
 
 const AuthorHeader = styled.div`
-  font-family: 'Spectral Light';
+  font-family: 'Spectral';
+  font-weight: light;
   font-size: 13px;
 `;
 
@@ -67,7 +68,8 @@ const ContentContainer = styled.div`
 
 const FragmentText = styled.span<{ whichBook: boolean }>`
   position: relative;
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
+  font-weight: normal;
   font-size: 16px;
   color: #161616;
   overflow-wrap: normal;
@@ -91,7 +93,7 @@ const Context = styled.div<{ visible: boolean }>`
   filter: drop-shadow(9px 6px 20px rgba(0, 0, 0, 0.2));
   z-index: 2;
 
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 14px;
   color: #161616;
   line-height: 1.5;
@@ -131,7 +133,8 @@ export const LikeContainer = styled.div<{ liked: boolean }>`
 
 const LikeCount = styled.span`
   font-size: 13px;
-  font-family: 'Spectral Light';
+  font-family: 'Spectral';
+  font-weight: light;
 `;
 
 const Circle = styled.div`
@@ -146,7 +149,7 @@ const Circle = styled.div`
 
 const Letter1 = styled.span`
   font-size: 43px;
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   color: #676767;
   position: absolute;
   top: 13%;
@@ -155,7 +158,7 @@ const Letter1 = styled.span`
 
 const Letter2 = styled.span`
   font-size: 39px;
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   color: #676767;
   position: absolute;
   top: 35%;
@@ -187,10 +190,13 @@ const Author = styled.span`
     top: -30px;
     left: -40px;
   }
-  font-family: 'Spectral Light';
+  font-family: 'Spectral';
+  font-weight: light;
 `;
 const Book = styled.div`
-  font-family: 'Spectral Light Italic';
+  font-family: 'Spectral';
+  font-weight: light;
+  font-style: italic;
   word-wrap: break-word;
 `;
 

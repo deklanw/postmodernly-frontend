@@ -9,7 +9,7 @@ import { ExpandAndContractSpinner } from './Spinner';
 const FragmentOption = styled.span<{ whichBook: boolean }>`
   background-color: ${({ whichBook }) =>
     whichBook ? BOOK1_BLUE : BOOK2_YELLOW};
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 14px;
   color: black;
   display: inline-block;
@@ -28,13 +28,13 @@ const StyledAuthorsInfoBox = styled.div`
   position: relative;
   margin: auto 0 0 auto;
 
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 12px;
 
   &::before {
     position: absolute;
     content: '*';
-    font-family: 'Spectral Regular';
+    font-family: 'Spectral';
     font-size: 29px;
 
     top: -10px;

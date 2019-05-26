@@ -25,7 +25,7 @@ const SelectedOption = styled.div<{ whichBook: boolean }>`
   margin: 3px 5px;
   padding: 0 7px;
 
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 14px;
 
   display: inline-flex;
@@ -46,7 +46,8 @@ const StyledResultAndControlsBox = styled.div`
 `;
 
 const ErrorBox = styled.div`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 15px;
   color: ${ERROR_RED};
   justify-self: flex-end;

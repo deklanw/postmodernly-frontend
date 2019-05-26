@@ -43,7 +43,8 @@ export const StyledInput = styled.input<any>`
   background-color: #f2f2f2;
   outline: ${({ error }) => (error ? `1px solid ${ERROR_RED}` : 'unset')};
   border: none;
-  font-family: 'Spectral Light';
+  font-family: 'Spectral';
+  font-weight: light;
   font-size: 16px;
   color: #333333;
 `;
@@ -84,7 +85,7 @@ const FormBox = styled.div`
     border-radius: 2px;
     background-color: #535353;
     border: none;
-    font-family: 'Spectral Regular';
+    font-family: 'Spectral';
     font-size: 15px;
     color: white;
     display: block;
@@ -96,7 +97,7 @@ const FormBox = styled.div`
   }
 
   & label {
-    font-family: 'Spectral Regular';
+    font-family: 'Spectral';
     font-size: 18px;
     margin: 40px 0px;
     display: block;
@@ -104,12 +105,14 @@ const FormBox = styled.div`
 `;
 
 const Header = styled.span`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 25px;
 `;
 
 const StatusError = styled.div`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   font-size: 16px;
   color: ${ERROR_RED};
 `;

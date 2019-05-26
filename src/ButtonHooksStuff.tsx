@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-const Button = styled.button<{ fontSize: number }>(
-  {
-    width: '150px',
-    height: '50px',
-    backgroundColor: '#F2F2F2',
-    color: 'black',
-    fontFamily: 'Spectral Light'
-  },
-  ({ fontSize }) => ({
-    fontSize
-  })
-);
+const Button = styled.button<{ fontSize: number }>`
+  width: 150px;
+  height: 50px;
+  background-color: #f2f2f2;
+  color: black;
+  font-family: 'Spectral';
+  font-weight: 'light';
+  font-size: ${({ fontSize }) => fontSize};
+`;
 
 const ResetButton = styled.button`
-  font-family: 'Spectral Medium';
+  font-family: 'Spectral';
+  font-weight: medium;
   color: black;
   width: 200px;
   height: 50px;

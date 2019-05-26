@@ -11,7 +11,7 @@ import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../graphql/graphql';
 import GenericError from './GenericError';
 
 const LoadMoreButton = styled.button`
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 14px;
   height: 35px;
   width: 180px;

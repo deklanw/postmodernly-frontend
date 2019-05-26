@@ -8,7 +8,7 @@ const Container = styled.div<{}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Spectral Regular';
+  font-family: 'Spectral';
   font-size: 16px;
   color: ${ERROR_RED};
 `;
