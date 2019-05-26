@@ -36,7 +36,7 @@
     "genTypes": "graphql-codegen",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --quiet",
     "analyze": "source-map-explorer build/static/js/*.js",
-    "postbuild": "gzip -r build"
+    "gzip": "gzip -r build"
   },
   "browserslist": [
     ">0.2%",
