@@ -5,9 +5,10 @@ module.exports = {
       {
         useBuiltIns: 'usage',
         targets: {
-          browsers: ['>0.5%', 'not dead', 'not ie <= 11', 'not op_mini all']
+          browsers: ['>1%', 'not dead', 'not ie <= 11', 'not op_mini all']
         },
-        corejs: 3
+        corejs: 3,
+        debug: true
       }
     ],
     '@babel/preset-react',
