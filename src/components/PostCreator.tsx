@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 import { knuthShuffle } from 'knuth-shuffle';
 
 import { Fragment, BooksInfo } from './shared/types';

@@ -1,6 +1,6 @@
 import React, { HTMLProps } from 'react';
 import { FieldProps, useField } from 'formik';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 import * as yup from 'yup';
 import { ERROR_RED } from '../../util/constants';
 import { ExpandAndContractSpinner } from '../Spinner';

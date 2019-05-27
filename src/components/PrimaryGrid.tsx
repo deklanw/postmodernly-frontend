@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 import PostCreator from './PostCreator';
 import PostFeed from './PostFeed';
 
@@ -10,7 +10,6 @@ const Container = styled.div`
   margin: 15px 30px;
 `;
 
-// factor out 100 margin top?
 const Grid = styled.div`
   display: grid;
   align-self: center;

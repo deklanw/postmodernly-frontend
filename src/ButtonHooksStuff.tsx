@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 
 const Button = styled.button<{ fontSize: number }>`
   width: 150px;

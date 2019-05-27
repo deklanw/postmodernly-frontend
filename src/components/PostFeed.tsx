@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 import dayjs from 'dayjs';
 import { useSubscription } from 'react-apollo-hooks';
 

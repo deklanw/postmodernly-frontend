@@ -1,24 +1,5 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import { keyframes } from '@emotion/core';
-
-const expandAndDisappear = keyframes`
-  0% { 
-    transform: scale(0);
-  } 100% {
-    transform: scale(1.0);
-    opacity: 0;
-  }
-`;
-
-const bounce = keyframes`
-  0%, 100% {
-    transform: scale(0.0)
-  }
-  50% {
-    transform: scale(1.0)
-  }
-`;
+import { styled } from 'linaria/react';
 
 type ExpandAndContractProps = {
   dimension: number;
@@ -43,7 +24,17 @@ const ExpandAndContract = styled.div<ExpandAndContractProps>`
     top: 0;
     left: 0;
 
-    animation: ${bounce} 2s infinite ease-in-out;
+    animation: bounce 2s infinite ease-in-out;
+
+    @keyframes bounce {
+      0%,
+      100% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1);
+      }
+    }
   }
 
   & > :last-of-type {
@@ -68,5 +59,15 @@ export const CircleExpandAndDisappear = styled.div<{ dimension: number }>`
   background-color: #333;
 
   border-radius: 100%;
-  animation: ${expandAndDisappear} 1.5s infinite ease-in-out;
+  animation: expandAndDisappear 1.5s infinite ease-in-out;
+
+  @keyframes expandAndDisappear {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
 `;

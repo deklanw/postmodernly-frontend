@@ -11,6 +11,7 @@ module.exports = {
       }
     ],
     '@babel/preset-react',
-    '@babel/preset-typescript'
+    '@babel/preset-typescript',
+    'linaria/babel'
   ]
 };

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 import { useApolloClient } from 'react-apollo-hooks';
 import gql from 'graphql-tag';
 

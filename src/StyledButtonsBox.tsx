@@ -1,9 +1,8 @@
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 
 export default styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: ${({ top }: any) => (top ? 'flex-start' : 'flex-end')};
 
   & button {
     font-family: 'Spectral';

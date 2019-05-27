@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 
 import StyledButtonsBox from '../StyledButtonsBox';
 import {
@@ -20,8 +20,7 @@ const RemoveSelectionX = styled.div`
 `;
 
 const SelectedOption = styled.div<{ whichBook: boolean }>`
-  background-color: ${({ whichBook }) =>
-    whichBook ? BOOK1_BLUE : BOOK2_YELLOW};
+  background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
   margin: 3px 5px;
   padding: 0 7px;
 

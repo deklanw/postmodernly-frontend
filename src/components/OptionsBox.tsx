@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import { styled } from 'linaria/react';
 
 import { Fragment, BooksInfo } from './shared/types';
 import { BOOK1_BLUE, BOOK2_YELLOW } from '../util/constants';
@@ -7,8 +7,7 @@ import StyledButtonsBox from '../StyledButtonsBox';
 import { ExpandAndContractSpinner } from './Spinner';
 
 const FragmentOption = styled.span<{ whichBook: boolean }>`
-  background-color: ${({ whichBook }) =>
-    whichBook ? BOOK1_BLUE : BOOK2_YELLOW};
+  background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
   font-family: 'Spectral';
   font-size: 14px;
   color: black;
@@ -48,7 +47,7 @@ const AuthorInfo = styled.div`
   margin: 0 10px;
 `;
 
-const AuthorCircle = styled.div`
+const AuthorCircle = styled.div<{ color: string }>`
   display: inline-block;
   margin-left: 5px;
   width: 20px;
