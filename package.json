@@ -30,8 +30,8 @@
     "yup": "^0.27.0"
   },
   "scripts": {
-    "start": "webpack-dev-server --mode development --color --progress",
-    "build": "webpack --mode production --colors --progress",
+    "start": "cross-env NODE_ENV=development webpack-dev-server --mode development --color --progress",
+    "build": "cross-env NODE_ENV=production webpack --mode production --colors --progress",
     "genTypes": "graphql-codegen",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --quiet",
     "analyze": "source-map-explorer \"dist/*.js\"",
@@ -58,6 +58,7 @@
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^2.0.2",
     "core-js": "2.6.8",
+    "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
