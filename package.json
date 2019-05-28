@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.4.5",
+    "@hot-loader/react-dom": "^16.8.6",
     "apollo-cache-inmemory": "^1.5.1",
     "apollo-client": "^2.5.1",
     "apollo-link": "^1.2.11",
@@ -23,6 +24,7 @@
     "react-apollo": "^2.5.5",
     "react-apollo-hooks": "^0.4.5",
     "react-dom": "^16.8.6",
+    "react-hot-loader": "^4.8.8",
     "react-router-dom": "^5.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "yup": "^0.27.0"
@@ -33,7 +35,8 @@
     "genTypes": "graphql-codegen",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --quiet",
     "analyze": "source-map-explorer \"dist/*.js\"",
-    "gzip": "gzip -r dist"
+    "gzip": "gzip -r dist",
+    "stats": "webpack --env production --json > stats.json"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",

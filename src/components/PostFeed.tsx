@@ -1,4 +1,5 @@
 import React, { createContext, useState } from 'react';
+import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import dayjs from 'dayjs';
 import { useSubscription } from 'react-apollo-hooks';
@@ -199,4 +200,4 @@ const PostFeed = () => {
   );
 };
 
-export default PostFeed;
+export default hot(PostFeed);

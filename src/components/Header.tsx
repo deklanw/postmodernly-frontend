@@ -1,6 +1,8 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { Link } from 'react-router-dom';
+
 import { useMeQuery } from '../generated/graphql';
 
 const Container = styled.div`
@@ -89,4 +91,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default hot(Header);

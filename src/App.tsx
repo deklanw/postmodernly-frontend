@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
@@ -99,4 +100,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default hot(App);

@@ -9,13 +9,12 @@ module.exports = (env, argv) => {
   const dev = argv.mode !== 'production';
 
   return {
-    entry: {
-      app: './src/index.tsx'
-    },
+    entry: ['react-hot-loader/patch', './src/index.tsx'],
     resolve: {
       extensions: ['.jsx', '.js', '.tsx', '.ts'],
       alias: {
-        'core-js': 'core-js3'
+        'core-js': 'core-js3',
+        'react-dom': '@hot-loader/react-dom'
       }
     },
     output: {
@@ -68,7 +67,8 @@ module.exports = (env, argv) => {
       contentBase: './dist',
       port: 3000,
       compress: true,
-      open: true
+      open: true,
+      hot: true
     }
   };
 };

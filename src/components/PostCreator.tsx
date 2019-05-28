@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { knuthShuffle } from 'knuth-shuffle';
 
@@ -189,4 +190,4 @@ const PostCreator = () => {
   return <Container>{content}</Container>;
 };
 
-export default PostCreator;
+export default hot(PostCreator);
