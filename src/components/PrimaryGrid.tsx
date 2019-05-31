@@ -1,24 +1,24 @@
 import React from 'react';
 import { styled } from 'linaria/react';
-import PostCreator from './PostCreator';
-import PostFeed from './PostFeed';
+import PostCreator from './creator/PostCreator';
+import PostFeed from './feed/PostFeed';
 
 const Container = styled.div`
   display: flex;
   flex-direction: horizontal;
   justify-content: center;
-  margin: 15px 30px;
+  margin: 5px 30px;
 `;
 
 const Grid = styled.div`
   display: grid;
   align-self: center;
-  margin-top: 50px;
+  margin-top: 30px;
   align-items: start;
 
-  grid-template-columns: repeat(24, 40px);
+  grid-template-columns: repeat(24, 46px);
   grid-template-rows: 1fr;
-  grid-column-gap: 10px;
+  grid-column-gap: 12px;
 `;
 
 const PostCreatorContainer = styled.div`

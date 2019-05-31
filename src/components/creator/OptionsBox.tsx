@@ -1,12 +1,12 @@
 import React from 'react';
 import { styled } from 'linaria/react';
 
-import { Fragment, BooksInfo } from './shared/types';
-import { BOOK1_BLUE, BOOK2_YELLOW } from '../util/constants';
-import StyledButtonsBox from '../StyledButtonsBox';
-import { ExpandAndContractSpinner } from './Spinner';
+import { TOptionFragment, TBooksInfo } from '../shared/types';
+import { BOOK1_BLUE, BOOK2_YELLOW } from '../../util/constants';
+import StyledButtonsBox from '../shared/StyledButtonsBox';
+import { ExpandAndContractSpinner } from '../shared/Spinner';
 
-const FragmentOption = styled.span<{ whichBook: boolean }>`
+const FragmentOption = styled.span<{ whichBook: boolean; onClick: any }>`
   background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
   font-family: 'Spectral';
   font-size: 14px;
@@ -16,35 +16,34 @@ const FragmentOption = styled.span<{ whichBook: boolean }>`
   padding: 1px;
   cursor: pointer;
 `;
+
+const ButtonsContainer = styled.div`
+  width: 100%;
+  margin: auto 0 0 0;
+  padding: 0px 6px;
+`;
+
 const StyledOptionsBox = styled.div`
   padding: 20px;
-  min-height: 800px;
+  min-height: 450px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 `;
 
 const StyledAuthorsInfoBox = styled.div`
-  position: relative;
-  margin: auto 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 
   font-family: 'Spectral';
   font-size: 12px;
-
-  &::before {
-    position: absolute;
-    content: '*';
-    font-family: 'Spectral';
-    font-size: 29px;
-
-    top: -10px;
-    left: -10px;
-  }
 `;
 
 const AuthorInfo = styled.div`
   display: inline-flex;
   align-items: center;
-  margin: 0 10px;
+  margin: 2px 15px;
 `;
 
 const AuthorCircle = styled.div<{ color: string }>`
@@ -61,10 +60,10 @@ const FragmentsBox = styled.div`
 `;
 
 type Props = {
-  orderedFragments: Fragment[];
-  selectedFragments: Fragment[];
-  bookInfo: BooksInfo | undefined;
-  addFragmentSelection: (f: Fragment) => void;
+  orderedFragments: TOptionFragment[];
+  selectedFragments: TOptionFragment[];
+  bookInfo: TBooksInfo | undefined;
+  addFragmentSelection: (f: TOptionFragment) => void;
   clearSelectedFragments: () => void;
   getNewFragmentOptions: () => void;
   shuffleFragments: () => void;
@@ -106,6 +105,7 @@ const OptionsBox: React.FC<Props> = ({
   } else {
     content = (
       <>
+        {authorsBox}
         <FragmentsBox>
           {orderedFragments
             .filter(el => !selectedFragments.includes(el))
@@ -121,22 +121,23 @@ const OptionsBox: React.FC<Props> = ({
               );
             })}
         </FragmentsBox>
-        {authorsBox}
       </>
     );
   }
 
   return (
     <StyledOptionsBox>
-      <StyledButtonsBox>
-        <button type="submit" onClick={shuffleFragments} disabled={loading}>
-          Shuffle
-        </button>
-        <button type="submit" onClick={refresh} disabled={loading}>
-          Refresh
-        </button>
-      </StyledButtonsBox>
       {content}
+      <ButtonsContainer>
+        <StyledButtonsBox>
+          <button type="submit" onClick={shuffleFragments} disabled={loading}>
+            Shuffle
+          </button>
+          <button type="submit" onClick={refresh} disabled={loading}>
+            Get More
+          </button>
+        </StyledButtonsBox>
+      </ButtonsContainer>
     </StyledOptionsBox>
   );
 };

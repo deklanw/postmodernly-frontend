@@ -58,17 +58,25 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new CleanWebpackPlugin(),
-      new HtmlWebpackPlugin({ template: './public/index.html' }),
+      new HtmlWebpackPlugin({
+        template: './public/index.html',
+        favicon: './public/favicon.ico'
+      }),
       new MiniCssExtractPlugin({ filename: 'styles.css' }),
       new BundleAnalyzerPlugin({ openAnalyzer: !dev })
     ],
     devtool: dev ? 'inline-source-map' : 'source-map',
     devServer: {
-      contentBase: './dist',
+      contentBase: path.join(__dirname, 'dist'),
+      publicPath: '/',
+      historyApiFallback: true,
       port: 3000,
       compress: true,
       open: true,
       hot: true
+    },
+    output: {
+      publicPath: '/'
     }
   };
 };

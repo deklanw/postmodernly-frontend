@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from 'linaria/react';
 
-import { ERROR_RED } from '../util/constants';
+import { ERROR_RED } from '../../util/constants';
 
 const Container = styled.div<{}>`
   padding: 50px 10px;

@@ -16,6 +16,8 @@ module.exports = {
     'jsx-a11y/label-has-associated-control': 'warn',
     'jsx-a11y/label-has-for': 'warn',
     'jsx-a11y/accessible-emoji': 'warn',
+    'jsx-a11y/click-events-have-key-events': 'warn',
+    'jsx-a11y/interactive-supports-focus': 'warn',
     'prefer-destructuring': 'warn',
     'no-underscore-dangle': 'warn',
     'no-undef': 'warn',
@@ -26,7 +28,11 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'warn',
     radix: 0,
     'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'warn'
+    'react-hooks/exhaustive-deps': 'warn',
+    'no-param-reassign': {
+      props: true,
+      ignorePropertyModificationsFor: ['closePopup']
+    }
   },
   settings: {
     'import/resolver': {

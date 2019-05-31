@@ -2,10 +2,11 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { FormikConfig, Formik } from 'formik';
 
-import { GenericFormBox, loginValidation, MyTextField } from './shared/input';
-import { ME_QUERY } from '../graphql/graphql';
-import { useLoginUserMutation } from '../generated/graphql';
-import { SERVER_DOWN } from '../util/constants';
+import { GenericFormBox, loginValidation, MyTextField } from '../shared/input';
+import { ME_QUERY } from '../../graphql/graphql';
+import { useLoginUserMutation } from '../../generated/graphql';
+import { SERVER_DOWN } from '../../util/constants';
+import { superstructToFormik } from '../../util/util';
 
 interface FormValues {
   [key: string]: string;
@@ -17,7 +18,14 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const loginUser = useLoginUserMutation();
 
   const formikConfig: FormikConfig<FormValues> = {
-    validationSchema: loginValidation,
+    validate: v => {
+      try {
+        loginValidation(v);
+      } catch (e) {
+        return superstructToFormik(e);
+      }
+      return {};
+    },
     initialValues: { email: '', password: '' },
     onSubmit: async (values, { setStatus }) => {
       setStatus({});

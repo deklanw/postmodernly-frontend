@@ -7,18 +7,17 @@ export default styled.div`
   & button {
     font-family: 'Spectral';
     font-size: 14px;
-    width: 95px;
+    width: 110px;
     height: 35px;
     border: none;
     border-radius: 2px;
 
     cursor: pointer;
   }
-  /* 
-  & button:nth-of-type(1) {
-    color: black;
-    background-color: white;
-  } */
+
+  & button:disabled {
+    opacity: 0.5;
+  }
 
   & button:nth-of-type(1) {
     color: black;

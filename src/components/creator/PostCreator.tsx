@@ -3,24 +3,24 @@ import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { knuthShuffle } from 'knuth-shuffle';
 
-import { Fragment, BooksInfo } from './shared/types';
+import { TOptionFragment, TBooksInfo } from '../shared/types';
 import SelectionAndControlsBox from './SelectionAndControlsBox';
 import {
   useGetNewPostOptionsMutation,
   useGetPostOptionsMutation,
   useMakePostMutation,
-  BookFragmentOptions
-} from '../generated/graphql';
+  BookOptionsFragment
+} from '../../generated/graphql';
 import OptionsBox from './OptionsBox';
-import GenericError from './GenericError';
+import GenericError from '../shared/GenericError';
 
 function immutableShuffle<T>(arr: T[]): T[] {
   const newArray = arr.slice();
   return knuthShuffle(newArray);
 }
-const initSelectedFragments: Fragment[] = [];
-const initFragmentOptions: Fragment[] = [];
-const initBookInfo: BooksInfo | undefined = undefined;
+const initSelectedFragments: TOptionFragment[] = [];
+const initFragmentOptions: TOptionFragment[] = [];
+const initBookInfo: TBooksInfo | undefined = undefined;
 
 const Container = styled.div`
   background-color: white;
@@ -29,10 +29,10 @@ const Container = styled.div`
 `;
 
 const formatOptions = (
-  book1Options: BookFragmentOptions,
-  book2Options: BookFragmentOptions
+  book1Options: BookOptionsFragment,
+  book2Options: BookOptionsFragment
 ) => {
-  const reformattedBook1Options: Fragment[] = book1Options.fragmentOptions.map(
+  const reformattedBook1Options: TOptionFragment[] = book1Options.fragmentOptions.map(
     el => ({
       fragmentText: el.fragment.fragmentText,
       fragmentId: parseInt(el.fragment.id),
@@ -42,7 +42,7 @@ const formatOptions = (
     })
   );
 
-  const reformattedBook2Options: Fragment[] = book2Options.fragmentOptions.map(
+  const reformattedBook2Options: TOptionFragment[] = book2Options.fragmentOptions.map(
     el => ({
       fragmentText: el.fragment.fragmentText,
       fragmentId: parseInt(el.fragment.id),
@@ -54,8 +54,9 @@ const formatOptions = (
 
   return {
     reformattedBookOptions: reformattedBook1Options
-      .concat(reformattedBook2Options)
-      .sort((a, b) => a.order - b.order),
+      .slice(0, 6)
+      .concat(reformattedBook2Options.slice(0, 6))
+      .sort((a, b) => b.fragmentText.length - a.fragmentText.length),
     bookInfos: {
       book1Info: {
         id: parseInt(book1Options.book.id),
@@ -86,17 +87,24 @@ const PostCreator = () => {
   const [selectedFragments, setSelectedFragments] = useState(
     initSelectedFragments
   );
-  const [bookInfo, setBookInfo] = useState<BooksInfo | undefined>(initBookInfo);
+  const [bookInfo, setBookInfo] = useState<TBooksInfo | undefined>(
+    initBookInfo
+  );
   const [errored, setErrored] = useState(false);
 
   const getFragmentOptions = async (newOptions: boolean) => {
     setOptionsBoxLoading(true);
-    const get = newOptions ? getNewPostOptions : getPostOptions;
 
     try {
-      const { data } = await get();
+      let options;
 
-      const options = data.getPostOptions || data.getNewPostOptions;
+      if (newOptions) {
+        const { data } = await getNewPostOptions();
+        options = data!.getNewPostOptions;
+      } else {
+        const { data } = await getPostOptions();
+        options = data!.getPostOptions;
+      }
 
       if (options.postOptions) {
         const { book1Options, book2Options } = options.postOptions;
@@ -127,7 +135,7 @@ const PostCreator = () => {
         variables: { data: input }
       });
 
-      if (data.makePost) {
+      if (data!.makePost) {
         setSelectedFragments([]);
         setFragments([]);
         getFragmentOptions(true);
@@ -138,7 +146,7 @@ const PostCreator = () => {
     }
   };
 
-  const addFragmentSelection = (fragment: Fragment) =>
+  const addFragmentSelection = (fragment: TOptionFragment) =>
     setSelectedFragments([...selectedFragments, fragment]);
 
   const clearSelectedFragments = () => setSelectedFragments([]);
@@ -171,7 +179,7 @@ const PostCreator = () => {
           selectedFragments={selectedFragments}
           resetSelected={resetSelected}
           handleSubmit={handleSubmit}
-          loading={selectionAndControlBoxLoading || optionsBoxLoading}
+          loading={selectionAndControlBoxLoading}
         />
         <OptionsBox
           getNewFragmentOptions={() => getFragmentOptions(true)}

@@ -383,6 +383,15 @@ export type MakePostMutation = { __typename?: 'Mutation' } & Pick<
   Mutation,
   'makePost'
 >;
+
+export type ConfirmUserMutationVariables = {
+  token: Scalars['String'];
+};
+
+export type ConfirmUserMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'confirmUser'
+>;
 export const BookOptionsFragmentDoc = gql`
   fragment BookOptions on BookFragmentOptions {
     book {
@@ -697,4 +706,25 @@ export function useMakePostMutation(
     MakePostMutation,
     MakePostMutationVariables
   >(MakePostDocument, baseOptions);
+}
+export const ConfirmUserDocument = gql`
+  mutation ConfirmUser($token: String!) {
+    confirmUser(token: $token)
+  }
+`;
+export type ConfirmUserMutationFn = ReactApollo.MutationFn<
+  ConfirmUserMutation,
+  ConfirmUserMutationVariables
+>;
+
+export function useConfirmUserMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    ConfirmUserMutation,
+    ConfirmUserMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    ConfirmUserMutation,
+    ConfirmUserMutationVariables
+  >(ConfirmUserDocument, baseOptions);
 }

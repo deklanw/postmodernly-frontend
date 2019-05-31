@@ -80,7 +80,7 @@ const Header = () => {
   return (
     <Container>
       <Logo>
-        <Heading to="/">Post Postmodernly</Heading>
+        <Heading to="/">Postmodernly</Heading>
         <Subheading>Digital cut-ups</Subheading>
       </Logo>
       <Links>

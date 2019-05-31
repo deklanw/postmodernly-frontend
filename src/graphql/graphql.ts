@@ -167,3 +167,9 @@ export const MAKE_POST = gql`
     makePost(data: $data)
   }
 `;
+
+export const CONFIRM_USER = gql`
+  mutation ConfirmUser($token: String!) {
+    confirmUser(token: $token)
+  }
+`;

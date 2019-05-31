@@ -6,9 +6,10 @@ import {
   GenericFormBox,
   registerValidation,
   MyTextField
-} from './shared/input';
-import { useRegisterMutation } from '../generated/graphql';
-import { SERVER_DOWN, SOMETHING_WENT_WRONG } from '../util/constants';
+} from '../shared/input';
+import { useRegisterMutation } from '../../generated/graphql';
+import { SERVER_DOWN, SOMETHING_WENT_WRONG } from '../../util/constants';
+import { superstructToFormik } from '../../util/util';
 
 interface FormValues {
   [key: string]: string;
@@ -21,7 +22,14 @@ const Register: React.FC<RouteComponentProps> = ({ history }) => {
   const registerUser = useRegisterMutation();
 
   const formikConfig: FormikConfig<FormValues> = {
-    validationSchema: registerValidation,
+    validate: v => {
+      try {
+        registerValidation(v);
+      } catch (e) {
+        return superstructToFormik(e);
+      }
+      return {};
+    },
     initialValues: { email: '', password: '', passwordConfirm: '' },
     onSubmit: async (values, { setStatus }) => {
       setStatus({});

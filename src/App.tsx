@@ -14,10 +14,11 @@ import { getMainDefinition } from 'apollo-utilities';
 
 import PrimaryGrid from './components/PrimaryGrid';
 import Header from './components/Header';
-import Register from './components/Register';
+import Register from './components/forms/Register';
 import Footer from './components/Footer';
-import Login from './components/Login';
+import Login from './components/forms/Login';
 import Logout from './components/Logout';
+import ConfirmUser from './components/ConfirmUser';
 
 const Container = styled.div`
   display: flex;
@@ -26,9 +27,7 @@ const Container = styled.div`
   min-height: 100vh;
 `;
 
-const Content = styled.div`
-  flex: 1;
-`;
+const Content = styled.div``;
 
 const httpLink = new HttpLink({
   uri: 'http://localhost:4000/graphql',
@@ -82,6 +81,7 @@ const LoggedInContainer = () => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/logout" component={Logout} />
+        <Route path="/confirm-user/:token" component={ConfirmUser} />
       </Content>
       <Footer />
     </Container>

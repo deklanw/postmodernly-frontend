@@ -1,41 +1,43 @@
 import React, { HTMLProps } from 'react';
+import isEmail from 'is-email';
+import { superstruct } from 'superstruct';
 import { FieldProps, useField } from 'formik';
 import { styled } from 'linaria/react';
-import * as yup from 'yup';
 import { ERROR_RED } from '../../util/constants';
-import { ExpandAndContractSpinner } from '../Spinner';
+import { ExpandAndContractSpinner } from './Spinner';
 
-const EMAIL_NOT_LONG_ENOUGH = 'Email must be at least 3 characters.';
-const PASSWORD_NOT_LONG_ENOUGH = 'Password must be at least 3 characters.';
+const PASSWORD_NOT_LONG_ENOUGH = 'Password must be at least 5 characters.';
+const PASSWORD_TOO_LONG = 'Password must be less than 256 characters.';
+const PASSWORDS_MUST_MATCH = 'Passwords must match';
 const INVALID_EMAIL = 'Email must be a valid email.';
 
-const emailValidation = yup
-  .string()
-  .min(3, EMAIL_NOT_LONG_ENOUGH)
-  .max(255)
-  .email(INVALID_EMAIL)
-  .required();
-const passwordValidation = yup
-  .string()
-  .min(5, PASSWORD_NOT_LONG_ENOUGH)
-  .max(255)
-  .required();
-
-export const registerValidation = yup.object().shape({
-  email: emailValidation,
-  password: passwordValidation,
-  passwordConfirm: yup
-    .string()
-    .oneOf([yup.ref('password'), null])
-    .required()
+const struct = superstruct({
+  types: {
+    email: value => {
+      if (!isEmail(value)) return INVALID_EMAIL;
+      return true;
+    },
+    password: value => {
+      if (value.length < 5) return PASSWORD_NOT_LONG_ENOUGH;
+      if (value.length >= 256) return PASSWORD_TOO_LONG;
+      return true;
+    }
+  }
 });
 
-export const loginValidation = yup.object().shape({
-  email: emailValidation,
-  password: passwordValidation
+export const loginValidation = struct({
+  email: 'email',
+  password: 'password'
 });
 
-export const StyledInput = styled.input<any>`
+export const registerValidation = struct({
+  email: 'email',
+  password: 'password',
+  passwordConfirm: (value: any, data: any) =>
+    value === data.password ? true : PASSWORDS_MUST_MATCH
+});
+
+export const StyledInput = styled.input<{ error: any }>`
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -93,7 +95,7 @@ const FormBox = styled.div`
   }
 
   & button:disabled {
-    background-color: #b5b5b5;
+    opacity: 0.5;
   }
 
   & label {

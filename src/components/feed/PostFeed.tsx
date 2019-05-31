@@ -1,15 +1,15 @@
-import React, { createContext, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import dayjs from 'dayjs';
 import { useSubscription } from 'react-apollo-hooks';
 
 import Post from './Post';
-import { useGetPostsWithCursorQuery } from '../generated/graphql';
-import { ExpandAndContractSpinner } from './Spinner';
-import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../util/constants';
-import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../graphql/graphql';
-import GenericError from './GenericError';
+import { useGetPostsWithCursorQuery } from '../../generated/graphql';
+import { ExpandAndContractSpinner } from '../shared/Spinner';
+import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../../util/constants';
+import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../../graphql/graphql';
+import GenericError from '../shared/GenericError';
 
 const LoadMoreButton = styled.button`
   font-family: 'Spectral';
@@ -19,6 +19,10 @@ const LoadMoreButton = styled.button`
   border-radius: 2px;
   background-color: white;
   border: 1px solid black;
+
+  &:disabled {
+    opacity: 0.5;
+  }
 
   cursor: pointer;
 `;
@@ -53,16 +57,8 @@ const StyledPostFeed = styled.div`
   }
 `;
 
-// figure out how to make these types better
-export const ClosePopup = createContext({
-  closePopup: null as any,
-  setClosePopup: null as any
-});
-
 const PostFeed = () => {
-  const [closePopup, setClosePopup] = useState({
-    close: () => null
-  });
+  const closePopupRef = useRef<() => void>(() => null);
 
   const [areMorePosts, setAreMorePosts] = useState(true);
 
@@ -137,58 +133,70 @@ const PostFeed = () => {
       </ButtonContainer>
     );
 
-    innerContent = (
-      <ClosePopup.Provider value={{ closePopup, setClosePopup }}>
-        {posts.map(
-          ({
-            id,
-            usedFragments,
-            book1,
-            book2,
-            portman,
-            created,
-            likeCount,
-            currentUserLiked,
-            currentUserOwns
-          }) => {
-            const fragments = usedFragments.map(f => ({
-              bookId: f.fragment.book.id,
-              fragmentId: f.fragment.id,
-              fragmentText: f.fragment.fragmentText,
-              context: f.fragment.context,
-              order: f.order
-            }));
-            fragments.sort((a, b) => a.order - b.order);
+    innerContent = posts.map(
+      ({
+        id,
+        usedFragments,
+        book1,
+        book2,
+        portman,
+        created,
+        likeCount,
+        currentUserLiked,
+        currentUserOwns
+      }) => {
+        const fragments = usedFragments.map(f => ({
+          bookId: parseInt(f.fragment.book.id),
+          fragmentId: parseInt(f.fragment.id),
+          fragmentText: f.fragment.fragmentText,
+          context: f.fragment.context,
+          order: f.order
+        }));
+        fragments.sort((a, b) => a.order - b.order);
 
-            const bookInfo = { book1Info: book1, book2Info: book2 };
-            const date = dayjs(created).format(DATE_FORMAT);
+        const date = dayjs(created).format(DATE_FORMAT);
 
-            let initial1 = book1.author.name.split(' ').pop()![0];
-            let initial2 = book2.author.name.split(' ').pop()![0];
+        let book1Info = book1;
+        let book2Info = book2;
+        let initial1 = book1.author.name.split(' ').pop()![0];
+        let initial2 = book2.author.name.split(' ').pop()![0];
 
-            // initials in right order corresponding to portman
-            if (initial2.toLowerCase() === portman.name[0]) {
-              [initial2, initial1] = [initial1, initial2];
-            }
+        // order the bookInfo and initials with the portman
+        if (initial2.toLowerCase() === portman.name[0]) {
+          [initial2, initial1] = [initial1, initial2];
+          [book2Info, book1Info] = [book1Info, book2Info];
+        }
 
-            return (
-              <Post
-                key={id}
-                postId={id}
-                date={date}
-                initial1={initial1}
-                initial2={initial2}
-                portman={portman.name}
-                fragments={fragments}
-                likeCount={likeCount}
-                bookInfo={bookInfo}
-                currentUserLiked={currentUserLiked}
-                currentUserOwns={currentUserOwns}
-              />
-            );
+        const booksInfo = {
+          book1Info: {
+            id: parseInt(book1Info.id),
+            title: book1Info.title,
+            author: book1Info.author.name
+          },
+          book2Info: {
+            id: parseInt(book2Info.id),
+            title: book2Info.title,
+            author: book2Info.author.name
           }
-        )}
-      </ClosePopup.Provider>
+        };
+
+        return (
+          <Post
+            key={id}
+            postId={id}
+            date={date}
+            initial1={initial1}
+            initial2={initial2}
+            portman={portman.name}
+            fragments={fragments}
+            likeCount={likeCount}
+            booksInfo={booksInfo}
+            currentUserLiked={currentUserLiked}
+            currentUserOwns={currentUserOwns}
+            closePopup={closePopupRef}
+          />
+        );
+      }
     );
   }
 

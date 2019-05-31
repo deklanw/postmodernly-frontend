@@ -1,4 +1,4 @@
-export type Fragment = {
+export type TOptionFragment = {
   fragmentText: string;
   fragmentId: number;
   bookId: number;
@@ -6,13 +6,23 @@ export type Fragment = {
   order: number;
 };
 
-export type BooksInfo = {
-  book1Info: BookInfo;
-  book2Info: BookInfo;
+export type TPostFragment = {
+  fragmentText: string;
+  fragmentId: number;
+  bookId: number;
+  order: number;
+  context: string;
 };
 
-export type BookInfo = {
+export type TBooksInfo = {
+  book1Info: TBookInfo;
+  book2Info: TBookInfo;
+};
+
+export type TBookInfo = {
   id: number;
   title: string;
   author: string;
 };
+
+export type TClosePopup = React.MutableRefObject<() => void>;

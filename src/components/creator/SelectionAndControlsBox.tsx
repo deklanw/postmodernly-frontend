@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from 'linaria/react';
 
-import StyledButtonsBox from '../StyledButtonsBox';
+import StyledButtonsBox from '../shared/StyledButtonsBox';
 import {
   BOOK1_BLUE,
   BOOK2_YELLOW,
   MAX_POST_LENGTH,
   ERROR_RED
-} from '../util/constants';
-import { Fragment } from './shared/types';
-import { ExpandAndContractSpinner, CircleExpandAndDisappear } from './Spinner';
+} from '../../util/constants';
+import { TOptionFragment } from '../shared/types';
+import { ExpandAndContractSpinner } from '../shared/Spinner';
 
 const RemoveSelectionX = styled.div`
   display: inline-block;
@@ -58,7 +58,7 @@ const ErrorsAndButtons = styled.div`
 `;
 type FormErrors = string[];
 
-const validate = (fragments: Fragment[]) => {
+const validate = (fragments: TOptionFragment[]) => {
   const errors: FormErrors = [];
 
   const totalLength = fragments
@@ -82,7 +82,7 @@ const validate = (fragments: Fragment[]) => {
 
 type Props = {
   removeFragmentSelection: (fragmentId: number) => void;
-  selectedFragments: Fragment[];
+  selectedFragments: TOptionFragment[];
   resetSelected: () => void;
   handleSubmit: () => void;
   loading: boolean;
@@ -97,10 +97,14 @@ const SelectionAndControlsBox: React.FC<Props> = ({
 }) => {
   const [errors, setErrors] = useState<FormErrors>([]);
 
+  const noSelection = selectedFragments.length === 0;
+  const hasErrors = errors.length !== 0;
+
   useEffect(() => {
-    if (selectedFragments.length !== 0) {
+    if (!noSelection) {
       setErrors(validate(selectedFragments));
-    } else if (errors.length !== 0) {
+    } else if (hasErrors) {
+      // so it doesn't set redundantly, initially
       setErrors([]);
     }
   }, [selectedFragments]);
@@ -138,10 +142,18 @@ const SelectionAndControlsBox: React.FC<Props> = ({
           </ErrorBox>
         )}
         <StyledButtonsBox>
-          <button type="submit" onClick={resetSelected} disabled={loading}>
+          <button
+            type="submit"
+            onClick={resetSelected}
+            disabled={loading || noSelection}
+          >
             Clear
           </button>
-          <button type="submit" onClick={handleSubmit} disabled={loading}>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading || hasErrors || noSelection}
+          >
             Submit
           </button>
         </StyledButtonsBox>
