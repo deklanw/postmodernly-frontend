@@ -1,6 +1,8 @@
 import React from 'react';
 import { styled } from 'linaria/react';
 import { useMemo, useState } from 'react';
+import { Transition } from 'react-transition-group';
+import { TransitionStatus } from 'react-transition-group/Transition';
 
 import { whichBookToColor } from '../../util/util';
 import { TClosePopup } from '../shared/types';
@@ -20,18 +22,6 @@ const splitStringIntoThree = (text: string, search: string) => {
 
   return { pre, middle, post };
 };
-
-const FragmentText = styled.span<{ whichBook: boolean }>`
-  position: relative;
-  font-family: 'Spectral';
-  font-weight: normal;
-  font-size: 16px;
-  color: #161616;
-  overflow-wrap: normal;
-  &:hover {
-    background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
-  }
-`;
 
 const Context = styled.div<{ visible: boolean }>`
   display: ${({ visible }) => (visible ? 'flex' : 'none')};
@@ -107,6 +97,20 @@ const Frag = styled.span`
   cursor: pointer;
 `;
 
+const FragmentText = styled.span<{
+  whichBook: boolean;
+}>`
+  position: relative;
+  font-family: 'Spectral';
+  font-weight: normal;
+  font-size: 16px;
+  color: #161616;
+  overflow-wrap: normal;
+  &:hover {
+    background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
+  }
+`;
+
 type FragmentUIProps = {
   fragmentText: string;
   context: string;
@@ -126,7 +130,6 @@ const PostFragment: React.FC<FragmentUIProps> = ({
     () => splitStringIntoThree(context, fragmentText),
     [context, fragmentText]
   );
-
   const [visible, setVisible] = useState(false);
 
   const displayPopup = () => {

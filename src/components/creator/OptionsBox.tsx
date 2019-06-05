@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { styled } from 'linaria/react';
+import { TransitionGroup } from 'react-transition-group';
+import Transition, {
+  TransitionStatus
+} from 'react-transition-group/Transition';
 
 import { TOptionFragment, TBooksInfo } from '../shared/types';
-import { BOOK1_BLUE, BOOK2_YELLOW } from '../../util/constants';
+import {
+  BOOK1_BLUE,
+  BOOK2_YELLOW,
+  OPTION_FRAGMENT_ANIMATION_DURATION,
+  ERROR_RED
+} from '../../util/constants';
 import StyledButtonsBox from '../shared/StyledButtonsBox';
 import { ExpandAndContractSpinner } from '../shared/Spinner';
-
-const FragmentOption = styled.span<{ whichBook: boolean; onClick: any }>`
-  background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
-  font-family: 'Spectral';
-  font-size: 14px;
-  color: black;
-  display: inline-block;
-  margin: 4px 6px;
-  padding: 1px;
-  cursor: pointer;
-`;
+import { Maybe } from '../../generated/graphql';
+import BookLover from '../../assets/svg/book_lover.svg';
 
 const ButtonsContainer = styled.div`
   width: 100%;
@@ -25,7 +25,6 @@ const ButtonsContainer = styled.div`
 
 const StyledOptionsBox = styled.div`
   padding: 20px;
-  min-height: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,7 +36,9 @@ const StyledAuthorsInfoBox = styled.div`
   justify-content: center;
 
   font-family: 'Spectral';
-  font-size: 12px;
+  font-size: 13px;
+  height: 30px;
+  margin-bottom: 20px;
 `;
 
 const AuthorInfo = styled.div`
@@ -55,8 +56,52 @@ const AuthorCircle = styled.div<{ color: string }>`
   background-color: ${props => props.color};
 `;
 
-const FragmentsBox = styled.div`
-  margin: 30px 0;
+const OverflowBox = styled.div`
+  height: 300px;
+  overflow-y: scroll;
+  width: 100%;
+`;
+
+const FragmentOption = styled.span<{
+  whichBook: boolean;
+  onClick: any;
+  transitionStatus: TransitionStatus;
+}>`
+  background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
+  font-family: 'Spectral';
+  font-size: 14px;
+  color: black;
+  display: inline-block;
+  margin: 4px 6px;
+  padding: 1px;
+  cursor: pointer;
+
+  transition: ${OPTION_FRAGMENT_ANIMATION_DURATION}ms;
+  transition-timing-function: ease-out;
+  opacity: ${({ transitionStatus }) =>
+    transitionStatus === 'entered' ? 1 : 0};
+`;
+
+const LimitBox = styled.div`
+  height: 15px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: 'Spectral';
+  font-size: 16px;
+`;
+
+const WarningNumber = styled.span`
+  margin-right: 4px;
+  color: ${ERROR_RED};
+`;
+
+const CenteredSvg = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 type Props = {
@@ -65,8 +110,10 @@ type Props = {
   bookInfo: TBooksInfo | undefined;
   addFragmentSelection: (f: TOptionFragment) => void;
   clearSelectedFragments: () => void;
-  getNewFragmentOptions: () => void;
+  getNewFragmentOptions: () => Promise<void>;
   shuffleFragments: () => void;
+  remainingRefreshes: Maybe<number>;
+  remainingSeconds: Maybe<number>;
   loading: boolean;
 };
 
@@ -78,62 +125,125 @@ const OptionsBox: React.FC<Props> = ({
   clearSelectedFragments,
   bookInfo,
   addFragmentSelection,
+  remainingSeconds,
+  remainingRefreshes,
   loading
 }) => {
-  const authorsBox = bookInfo ? (
-    <StyledAuthorsInfoBox>
-      <AuthorInfo>
-        {bookInfo.book1Info.author}
-        <AuthorCircle color={BOOK1_BLUE} />
-      </AuthorInfo>
-      <AuthorInfo>
-        {bookInfo.book2Info.author}
-        <AuthorCircle color={BOOK2_YELLOW} />
-      </AuthorInfo>
-    </StyledAuthorsInfoBox>
-  ) : null;
-
-  const refresh = () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
     clearSelectedFragments();
-    getNewFragmentOptions();
-  };
+    await getNewFragmentOptions();
+    setRefreshing(false);
+  }, [clearSelectedFragments, getNewFragmentOptions, setRefreshing]);
+
+  const noOptions =
+    orderedFragments.length === 0 && selectedFragments.length === 0;
+  const outOfOptionsAndNoRefresh = remainingRefreshes === 0 && noOptions;
+
+  useEffect(() => {
+    if (
+      remainingSeconds !== null &&
+      remainingSeconds <= 0 &&
+      outOfOptionsAndNoRefresh &&
+      !refreshing
+    ) {
+      refresh();
+    }
+  });
 
   let content = null;
 
   if (loading) {
-    content = <ExpandAndContractSpinner dimension={75} margin={50} />;
+    content = (
+      <OverflowBox>
+        <ExpandAndContractSpinner dimension={100} margin={50} />
+      </OverflowBox>
+    );
+  } else if (outOfOptionsAndNoRefresh) {
+    content = (
+      <CenteredSvg>
+        <img src={BookLover} width="350px" alt="Woman reading" />
+      </CenteredSvg>
+    );
   } else {
     content = (
-      <>
-        {authorsBox}
-        <FragmentsBox>
+      <OverflowBox>
+        <TransitionGroup>
           {orderedFragments
             .filter(el => !selectedFragments.includes(el))
             .map(el => {
               return (
-                <FragmentOption
-                  whichBook={el.whichBook}
+                <Transition
+                  timeout={OPTION_FRAGMENT_ANIMATION_DURATION}
                   key={el.fragmentId}
-                  onClick={() => addFragmentSelection(el)}
                 >
-                  {el.fragmentText}
-                </FragmentOption>
+                  {transitionStatus => (
+                    <FragmentOption
+                      whichBook={el.whichBook}
+                      onClick={() => addFragmentSelection(el)}
+                      transitionStatus={transitionStatus}
+                    >
+                      {el.fragmentText}
+                    </FragmentOption>
+                  )}
+                </Transition>
               );
             })}
-        </FragmentsBox>
-      </>
+        </TransitionGroup>
+      </OverflowBox>
     );
   }
 
   return (
     <StyledOptionsBox>
+      {!outOfOptionsAndNoRefresh && (
+        <StyledAuthorsInfoBox>
+          {bookInfo && !loading && !outOfOptionsAndNoRefresh ? (
+            <>
+              <AuthorInfo>
+                {bookInfo.book1Info.author}
+                <AuthorCircle color={BOOK1_BLUE} />
+              </AuthorInfo>
+              <AuthorInfo>
+                {bookInfo.book2Info.author}
+                <AuthorCircle color={BOOK2_YELLOW} />
+              </AuthorInfo>
+            </>
+          ) : null}
+        </StyledAuthorsInfoBox>
+      )}
       {content}
+      <LimitBox>
+        {remainingSeconds !== null &&
+        remainingSeconds > 0 &&
+        remainingRefreshes !== null &&
+        remainingRefreshes <= 2 ? (
+          <>
+            <WarningNumber>{remainingRefreshes}</WarningNumber> refreshes left.
+            More available in {remainingSeconds} seconds.
+          </>
+        ) : null}
+      </LimitBox>
       <ButtonsContainer>
         <StyledButtonsBox>
-          <button type="submit" onClick={shuffleFragments} disabled={loading}>
+          <button
+            type="submit"
+            onClick={shuffleFragments}
+            disabled={loading || selectedFragments.length === 30 || noOptions}
+          >
             Shuffle
           </button>
-          <button type="submit" onClick={refresh} disabled={loading}>
+          <button
+            type="submit"
+            onClick={refresh}
+            disabled={
+              loading ||
+              (remainingRefreshes === 0 &&
+                remainingSeconds !== null &&
+                remainingSeconds > 0)
+            }
+          >
             Get More
           </button>
         </StyledButtonsBox>

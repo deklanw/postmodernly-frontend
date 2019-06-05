@@ -29,10 +29,13 @@ module.exports = {
     radix: 0,
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    'no-param-reassign': {
-      props: true,
-      ignorePropertyModificationsFor: ['closePopup']
-    }
+    'no-param-reassign': [
+      'error',
+      {
+        props: true,
+        ignorePropertyModificationsFor: ['closePopup']
+      }
+    ]
   },
   settings: {
     'import/resolver': {

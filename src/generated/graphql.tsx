@@ -176,7 +176,7 @@ export type PostOptions = {
 export type PostOptionsWithTime = {
   __typename?: 'PostOptionsWithTime';
   postOptions?: Maybe<PostOptions>;
-  remainingTime?: Maybe<Scalars['Int']>;
+  remaining?: Maybe<RemainingLimit>;
 };
 
 export type PostsWithCursor = {
@@ -199,6 +199,12 @@ export type QueryGetPostsWithCursorArgs = {
 export type RegisterInput = {
   password: Scalars['String'];
   email: Scalars['String'];
+};
+
+export type RemainingLimit = {
+  __typename?: 'RemainingLimit';
+  remainingRefreshes: Scalars['Int'];
+  remainingSeconds: Scalars['Int'];
 };
 
 export type ReorderOptionsInput = {
@@ -266,21 +272,24 @@ export type BookOptionsFragment = { __typename?: 'BookFragmentOptions' } & {
 export type GetPostOptionsMutationVariables = {};
 
 export type GetPostOptionsMutation = { __typename?: 'Mutation' } & {
-  getPostOptions: { __typename?: 'PostOptionsWithTime' } & Pick<
-    PostOptionsWithTime,
-    'remainingTime'
-  > & {
-      postOptions: Maybe<
-        { __typename?: 'PostOptions' } & {
-          book1Options: {
-            __typename?: 'BookFragmentOptions';
-          } & BookOptionsFragment;
-          book2Options: {
-            __typename?: 'BookFragmentOptions';
-          } & BookOptionsFragment;
-        }
-      >;
-    };
+  getPostOptions: { __typename?: 'PostOptionsWithTime' } & {
+    remaining: Maybe<
+      { __typename?: 'RemainingLimit' } & Pick<
+        RemainingLimit,
+        'remainingRefreshes' | 'remainingSeconds'
+      >
+    >;
+    postOptions: Maybe<
+      { __typename?: 'PostOptions' } & {
+        book1Options: {
+          __typename?: 'BookFragmentOptions';
+        } & BookOptionsFragment;
+        book2Options: {
+          __typename?: 'BookFragmentOptions';
+        } & BookOptionsFragment;
+      }
+    >;
+  };
 };
 
 export type PostFragmentFragment = { __typename?: 'Post' } & Pick<
@@ -358,21 +367,24 @@ export type DeletePostMutation = { __typename?: 'Mutation' } & Pick<
 export type GetNewPostOptionsMutationVariables = {};
 
 export type GetNewPostOptionsMutation = { __typename?: 'Mutation' } & {
-  getNewPostOptions: { __typename?: 'PostOptionsWithTime' } & Pick<
-    PostOptionsWithTime,
-    'remainingTime'
-  > & {
-      postOptions: Maybe<
-        { __typename?: 'PostOptions' } & {
-          book1Options: {
-            __typename?: 'BookFragmentOptions';
-          } & BookOptionsFragment;
-          book2Options: {
-            __typename?: 'BookFragmentOptions';
-          } & BookOptionsFragment;
-        }
-      >;
-    };
+  getNewPostOptions: { __typename?: 'PostOptionsWithTime' } & {
+    remaining: Maybe<
+      { __typename?: 'RemainingLimit' } & Pick<
+        RemainingLimit,
+        'remainingRefreshes' | 'remainingSeconds'
+      >
+    >;
+    postOptions: Maybe<
+      { __typename?: 'PostOptions' } & {
+        book1Options: {
+          __typename?: 'BookFragmentOptions';
+        } & BookOptionsFragment;
+        book2Options: {
+          __typename?: 'BookFragmentOptions';
+        } & BookOptionsFragment;
+      }
+    >;
+  };
 };
 
 export type MakePostMutationVariables = {
@@ -499,7 +511,10 @@ export function useLogoutMutation(
 export const GetPostOptionsDocument = gql`
   mutation GetPostOptions {
     getPostOptions {
-      remainingTime
+      remaining {
+        remainingRefreshes
+        remainingSeconds
+      }
       postOptions {
         book1Options {
           ...BookOptions
@@ -657,7 +672,10 @@ export function useDeletePostMutation(
 export const GetNewPostOptionsDocument = gql`
   mutation GetNewPostOptions {
     getNewPostOptions {
-      remainingTime
+      remaining {
+        remainingRefreshes
+        remainingSeconds
+      }
       postOptions {
         book1Options {
           ...BookOptions

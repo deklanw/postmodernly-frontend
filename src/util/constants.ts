@@ -14,3 +14,5 @@ export const ERROR_RED = '#ff5757';
 
 export const SERVER_DOWN = 'Something went wrong, maybe the server is down?';
 export const SOMETHING_WENT_WRONG = 'Something went wrong.';
+
+export const OPTION_FRAGMENT_ANIMATION_DURATION = 200;

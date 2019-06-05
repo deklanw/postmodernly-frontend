@@ -72,7 +72,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
-const LoggedInContainer = () => {
+const SiteContent = () => {
   return (
     <Container>
       <Header />
@@ -90,13 +90,11 @@ const LoggedInContainer = () => {
 
 const App = () => {
   return (
-    <>
-      <ApolloHooksProvider client={client}>
-        <Router>
-          <LoggedInContainer />
-        </Router>
-      </ApolloHooksProvider>
-    </>
+    <ApolloHooksProvider client={client}>
+      <Router>
+        <SiteContent />
+      </Router>
+    </ApolloHooksProvider>
   );
 };
 

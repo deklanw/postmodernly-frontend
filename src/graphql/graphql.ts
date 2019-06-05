@@ -37,7 +37,10 @@ const BOOK_OPTIONS = gql`
 export const GET_POST_OPTIONS = gql`
   mutation GetPostOptions {
     getPostOptions {
-      remainingTime
+      remaining {
+        remainingRefreshes
+        remainingSeconds
+      }
       postOptions {
         book1Options {
           ...BookOptions
@@ -148,7 +151,10 @@ export const DELETE_POST = gql`
 export const GET_NEW_POST_OPTIONS = gql`
   mutation GetNewPostOptions {
     getNewPostOptions {
-      remainingTime
+      remaining {
+        remainingRefreshes
+        remainingSeconds
+      }
       postOptions {
         book1Options {
           ...BookOptions

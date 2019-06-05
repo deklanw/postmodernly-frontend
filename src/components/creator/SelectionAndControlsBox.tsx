@@ -1,42 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from 'linaria/react';
+import Transition, {
+  TransitionStatus
+} from 'react-transition-group/Transition';
+import { TransitionGroup } from 'react-transition-group';
 
 import StyledButtonsBox from '../shared/StyledButtonsBox';
 import {
   BOOK1_BLUE,
   BOOK2_YELLOW,
   MAX_POST_LENGTH,
-  ERROR_RED
+  ERROR_RED,
+  OPTION_FRAGMENT_ANIMATION_DURATION
 } from '../../util/constants';
 import { TOptionFragment } from '../shared/types';
 import { ExpandAndContractSpinner } from '../shared/Spinner';
 
-const RemoveSelectionX = styled.div`
-  display: inline-block;
-  cursor: pointer;
-  margin-left: 5px;
-  font-size: 22px;
-  color: #7b7b7b;
-`;
-
-const SelectedOption = styled.div<{ whichBook: boolean }>`
+const SelectedOption = styled.span<{
+  whichBook: boolean;
+  onClick: any;
+  transitionStatus: TransitionStatus;
+}>`
   background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
-  margin: 3px 5px;
-  padding: 0 7px;
-
   font-family: 'Spectral';
-  font-size: 14px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-right: 7px;
 
-  display: inline-flex;
-  align-items: center;
+  transition: ${OPTION_FRAGMENT_ANIMATION_DURATION}ms;
+  transition-timing-function: ease-in;
+  opacity: ${({ transitionStatus }) =>
+    transitionStatus === 'entered' ? 1 : 0};
 `;
 
 const SelectionBox = styled.div`
   margin-bottom: 20px;
 `;
 
+const OverflowBox = styled.div`
+  height: 150px;
+  overflow-y: scroll;
+`;
+
 const StyledResultAndControlsBox = styled.div`
-  min-height: 300px;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -51,6 +57,11 @@ const ErrorBox = styled.div`
   color: ${ERROR_RED};
   justify-self: flex-end;
   margin-bottom: 10px;
+  height: 50px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ErrorsAndButtons = styled.div`
@@ -116,31 +127,37 @@ const SelectionAndControlsBox: React.FC<Props> = ({
   } else {
     content = (
       <SelectionBox>
-        {selectedFragments.map(el => (
-          <SelectedOption whichBook={el.whichBook} key={el.fragmentId}>
-            {el.fragmentText}
-            <RemoveSelectionX
-              onClick={() => removeFragmentSelection(el.fragmentId)}
+        <TransitionGroup>
+          {selectedFragments.map(el => (
+            <Transition
+              timeout={OPTION_FRAGMENT_ANIMATION_DURATION}
+              key={el.fragmentId}
             >
-              &#xd7;
-            </RemoveSelectionX>
-          </SelectedOption>
-        ))}
+              {transitionStatus => (
+                <>
+                  <SelectedOption
+                    whichBook={el.whichBook}
+                    onClick={() => removeFragmentSelection(el.fragmentId)}
+                    transitionStatus={transitionStatus}
+                  >
+                    {el.fragmentText}
+                  </SelectedOption>{' '}
+                </>
+              )}
+            </Transition>
+          ))}
+        </TransitionGroup>
       </SelectionBox>
     );
   }
 
   return (
     <StyledResultAndControlsBox>
-      {content}
+      <OverflowBox>{content}</OverflowBox>
       <ErrorsAndButtons>
-        {errors && (
-          <ErrorBox>
-            {errors.map(e => (
-              <div key={e}>* {e}</div>
-            ))}
-          </ErrorBox>
-        )}
+        <ErrorBox>
+          {errors.length > 0 ? <span>* {errors[0]}</span> : null}
+        </ErrorBox>
         <StyledButtonsBox>
           <button
             type="submit"

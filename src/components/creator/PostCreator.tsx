@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { knuthShuffle } from 'knuth-shuffle';
@@ -9,10 +10,13 @@ import {
   useGetNewPostOptionsMutation,
   useGetPostOptionsMutation,
   useMakePostMutation,
-  BookOptionsFragment
+  BookOptionsFragment,
+  RemainingLimit,
+  Maybe
 } from '../../generated/graphql';
 import OptionsBox from './OptionsBox';
 import GenericError from '../shared/GenericError';
+import { useInterval } from '../../util/util';
 
 function immutableShuffle<T>(arr: T[]): T[] {
   const newArray = arr.slice();
@@ -54,9 +58,8 @@ const formatOptions = (
 
   return {
     reformattedBookOptions: reformattedBook1Options
-      .slice(0, 6)
-      .concat(reformattedBook2Options.slice(0, 6))
-      .sort((a, b) => b.fragmentText.length - a.fragmentText.length),
+      .concat(reformattedBook2Options)
+      .sort((a, b) => a.order - b.order),
     bookInfos: {
       book1Info: {
         id: parseInt(book1Options.book.id),
@@ -82,6 +85,17 @@ const PostCreator = () => {
     setSelectionAndControlBoxLoading
   ] = useState(false);
   const [optionsBoxLoading, setOptionsBoxLoading] = useState(true);
+  const [remainingLimit, setRemainingLimit] = useState<Maybe<RemainingLimit>>(
+    null
+  );
+  const [refreshTime, setRefreshTime] = useState<Maybe<dayjs.Dayjs>>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState<Maybe<number>>(null);
+
+  useInterval(() => {
+    if (refreshTime !== null) {
+      setRemainingSeconds(refreshTime.diff(dayjs(), 'second', false));
+    }
+  }, 1000);
 
   const [orderedFragments, setFragments] = useState(initFragmentOptions);
   const [selectedFragments, setSelectedFragments] = useState(
@@ -94,7 +108,6 @@ const PostCreator = () => {
 
   const getFragmentOptions = async (newOptions: boolean) => {
     setOptionsBoxLoading(true);
-
     try {
       let options;
 
@@ -117,8 +130,19 @@ const PostCreator = () => {
         setBookInfo(bookInfos);
         setOptionsBoxLoading(false);
       }
+
+      // console.log(options);
+
+      if (options.remaining) {
+        setRemainingLimit(options.remaining);
+        setRefreshTime(
+          dayjs().add(options.remaining.remainingSeconds + 1, 'second') // give a second of error
+        );
+      }
     } catch (e) {
       setErrored(true);
+    } finally {
+      setOptionsBoxLoading(false);
     }
   };
 
@@ -189,6 +213,10 @@ const PostCreator = () => {
           orderedFragments={orderedFragments}
           selectedFragments={selectedFragments}
           bookInfo={bookInfo}
+          remainingRefreshes={
+            remainingLimit ? remainingLimit.remainingRefreshes : null
+          }
+          remainingSeconds={remainingSeconds}
           loading={selectionAndControlBoxLoading || optionsBoxLoading}
         />
       </>

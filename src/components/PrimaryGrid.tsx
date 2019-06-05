@@ -7,7 +7,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: horizontal;
   justify-content: center;
-  margin: 5px 30px;
 `;
 
 const Grid = styled.div`

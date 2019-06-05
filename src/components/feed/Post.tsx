@@ -85,12 +85,12 @@ const Circle = styled.div`
 `;
 
 const Letter1 = styled.span`
-  font-size: 43px;
+  font-size: 44px;
   font-family: 'Spectral';
   color: #676767;
   position: absolute;
   top: 13%;
-  left: 28%;
+  left: 27%;
 `;
 
 const Letter2 = styled.span`
@@ -98,7 +98,7 @@ const Letter2 = styled.span`
   font-family: 'Spectral';
   color: #676767;
   position: absolute;
-  top: 35%;
+  top: 30%;
   left: 47%;
 `;
 
@@ -133,7 +133,6 @@ const Post: React.FC<PostProps> = ({
   postId,
   closePopup
 }) => {
-  console.log('Post');
   const { book1Info, book2Info } = booksInfo;
   const dot = '·';
   const cacheId = `Post:${postId}`; // default naming

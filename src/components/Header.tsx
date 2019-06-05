@@ -42,7 +42,7 @@ const Links = styled.span`
   flex-direction: row;
   justify-content: space-between;
 
-  width: 400px;
+  width: 500px;
 `;
 
 const LinkItem = styled(Link)`
@@ -51,6 +51,14 @@ const LinkItem = styled(Link)`
   font-size: 20px;
   text-decoration: none;
   color: #333333;
+`;
+
+const Email = styled.span`
+  font-family: 'Spectral';
+  font-weight: medium;
+  font-size: 22px;
+  text-decoration: none;
+  color: #2d48cc;
 `;
 
 const Header = () => {
@@ -63,6 +71,7 @@ const Header = () => {
   if (loggedOut && !loading) {
     content = (
       <>
+        <LinkItem to="/">About</LinkItem>
         <LinkItem to="/register">Sign-up</LinkItem>
         <LinkItem to="/login">Login</LinkItem>
       </>
@@ -71,7 +80,8 @@ const Header = () => {
   if (!loggedOut) {
     content = (
       <>
-        <LinkItem to="/">{data!.me!.email}</LinkItem>
+        <Email>{data!.me!.email}</Email>
+        <LinkItem to="/">About</LinkItem>
         <LinkItem to="/logout">Logout</LinkItem>
       </>
     );
@@ -83,10 +93,7 @@ const Header = () => {
         <Heading to="/">Postmodernly</Heading>
         <Subheading>Digital cut-ups</Subheading>
       </Logo>
-      <Links>
-        <LinkItem to="/">About</LinkItem>
-        {content}
-      </Links>
+      <Links>{content}</Links>
     </Container>
   );
 };
