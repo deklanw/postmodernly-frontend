@@ -82,10 +82,11 @@ export type Mutation = {
   reorderOptions: Scalars['Boolean'];
   getNewPostOptions: PostOptionsWithTime;
   getPostOptions: PostOptionsWithTime;
-  register: User;
+  register: Scalars['Boolean'];
+  resendConfirmationEmail: Scalars['Boolean'];
   confirmUser: Scalars['Boolean'];
   login?: Maybe<User>;
-  changePassword?: Maybe<User>;
+  changePassword: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   logout: Scalars['Boolean'];
   deleteUser: Scalars['Boolean'];
@@ -109,6 +110,10 @@ export type MutationReorderOptionsArgs = {
 
 export type MutationRegisterArgs = {
   data: RegisterInput;
+};
+
+export type MutationResendConfirmationEmailArgs = {
+  email: Scalars['String'];
 };
 
 export type MutationConfirmUserArgs = {
@@ -342,9 +347,37 @@ export type RegisterMutationVariables = {
   data: RegisterInput;
 };
 
-export type RegisterMutation = { __typename?: 'Mutation' } & {
-  register: { __typename?: 'User' } & Pick<User, 'id' | 'email' | 'created'>;
+export type RegisterMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'register'
+>;
+
+export type ForgotPasswordMutationVariables = {
+  email: Scalars['String'];
 };
+
+export type ForgotPasswordMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'forgotPassword'
+>;
+
+export type ResendConfirmationMutationVariables = {
+  email: Scalars['String'];
+};
+
+export type ResendConfirmationMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'resendConfirmationEmail'
+>;
+
+export type ChangePasswordMutationVariables = {
+  data: ChangePasswordInput;
+};
+
+export type ChangePasswordMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'changePassword'
+>;
 
 export type LikePostMutationVariables = {
   data: UserPostLikeInput;
@@ -604,11 +637,7 @@ export function useMeQuery(
 }
 export const RegisterDocument = gql`
   mutation Register($data: RegisterInput!) {
-    register(data: $data) {
-      id
-      email
-      created
-    }
+    register(data: $data)
   }
 `;
 export type RegisterMutationFn = ReactApollo.MutationFn<
@@ -626,6 +655,69 @@ export function useRegisterMutation(
     RegisterMutation,
     RegisterMutationVariables
   >(RegisterDocument, baseOptions);
+}
+export const ForgotPasswordDocument = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email)
+  }
+`;
+export type ForgotPasswordMutationFn = ReactApollo.MutationFn<
+  ForgotPasswordMutation,
+  ForgotPasswordMutationVariables
+>;
+
+export function useForgotPasswordMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    ForgotPasswordMutation,
+    ForgotPasswordMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    ForgotPasswordMutation,
+    ForgotPasswordMutationVariables
+  >(ForgotPasswordDocument, baseOptions);
+}
+export const ResendConfirmationDocument = gql`
+  mutation ResendConfirmation($email: String!) {
+    resendConfirmationEmail(email: $email)
+  }
+`;
+export type ResendConfirmationMutationFn = ReactApollo.MutationFn<
+  ResendConfirmationMutation,
+  ResendConfirmationMutationVariables
+>;
+
+export function useResendConfirmationMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    ResendConfirmationMutation,
+    ResendConfirmationMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    ResendConfirmationMutation,
+    ResendConfirmationMutationVariables
+  >(ResendConfirmationDocument, baseOptions);
+}
+export const ChangePasswordDocument = gql`
+  mutation ChangePassword($data: ChangePasswordInput!) {
+    changePassword(data: $data)
+  }
+`;
+export type ChangePasswordMutationFn = ReactApollo.MutationFn<
+  ChangePasswordMutation,
+  ChangePasswordMutationVariables
+>;
+
+export function useChangePasswordMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    ChangePasswordMutation,
+    ChangePasswordMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    ChangePasswordMutation,
+    ChangePasswordMutationVariables
+  >(ChangePasswordDocument, baseOptions);
 }
 export const LikePostDocument = gql`
   mutation LikePost($data: UserPostLikeInput!) {

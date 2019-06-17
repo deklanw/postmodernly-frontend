@@ -1,39 +1,36 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { styled } from 'linaria/react';
+
 import PostCreator from './creator/PostCreator';
 import PostFeed from './feed/PostFeed';
+import { atMediaQ } from '../util/style';
+import { MediaQueryContext } from '../App';
 
 const Container = styled.div`
+  max-width: 1500px;
+  flex: 1;
   display: flex;
-  flex-direction: horizontal;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  ${atMediaQ.small} {
+    margin: 10px 0;
+  }
+  ${atMediaQ.medium} {
+    margin: 30px 50px;
+  }
+  ${atMediaQ.large} {
+    margin: 40px 50px;
+  }
 `;
-
-const Grid = styled.div`
-  display: grid;
-  align-self: center;
-  margin-top: 30px;
-  align-items: start;
-
-  grid-template-columns: repeat(24, 46px);
-  grid-template-rows: 1fr;
-  grid-column-gap: 12px;
-`;
-
-const PostCreatorContainer = styled.div`
-  grid-column-start: 17;
-  grid-column-end: span 8;
-`;
-
 const PrimaryGrid = () => {
+  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+
   return (
     <Container>
-      <Grid>
-        <PostFeed />
-        <PostCreatorContainer>
-          <PostCreator />
-        </PostCreatorContainer>
-      </Grid>
+      <PostFeed />
+      {isLarge ? <PostCreator /> : null}
     </Container>
   );
 };

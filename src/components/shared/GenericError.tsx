@@ -1,14 +1,12 @@
 import React from 'react';
 import { styled } from 'linaria/react';
-
-import { ERROR_RED } from '../../util/constants';
+import { ERROR_RED } from '../../util/style';
 
 const Container = styled.div<{}>`
   padding: 50px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Spectral';
   font-size: 16px;
   color: ${ERROR_RED};
 `;

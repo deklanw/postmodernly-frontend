@@ -1,29 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { styled } from 'linaria/react';
 import { useApolloClient } from 'react-apollo-hooks';
 import gql from 'graphql-tag';
 
-import HeartOpenBook from '../../assets/svg/HeartOpenBook';
-import { useLikePostMutation, useMeQuery } from '../../generated/graphql';
+import { useLikePostMutation } from '../../generated/graphql';
 import { TBooksInfo, TPostFragment, TClosePopup } from '../shared/types';
 import PostFragment from './PostFragment';
 import AuthorInfo from './AuthorInfo';
+import { atMediaQ } from '../../util/style';
+import { MediaQueryContext } from '../../App';
+import Heart from '../../assets/svg/heart.svg';
 
 const PostContainer = styled.div`
   position: relative;
   display: flex;
-  min-height: 175px;
   border-bottom: 1px #c4c4c4 solid;
   background-color: white;
   flex-direction: row;
   align-items: center;
+  ${atMediaQ.small} {
+    line-height: 1.1;
+  }
+  ${atMediaQ.medium} {
+  }
+  ${atMediaQ.large} {
+  }
 `;
 
 const AuthorHeader = styled.div`
-  font-family: 'Spectral';
-  font-weight: light;
+  font-weight: 300;
   font-size: 13px;
-  position: relative;
+  ${atMediaQ.small} {
+    font-size: 11px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 13px;
+  }
+  ${atMediaQ.large} {
+    font-size: 13px;
+  }
 `;
 
 const Dot = styled.span`
@@ -38,12 +53,25 @@ const FragmentContainer = styled.div`
 
 const ContentContainer = styled.div`
   display: flex;
-  height: 60%;
-  width: 75%;
-  padding: 40px 0px;
   flex-direction: column;
   justify-content: space-evenly;
-  position: relative;
+
+  ${atMediaQ.small} {
+    height: 60%;
+    width: 85%;
+    padding: 25px 0px;
+    margin: 0 auto;
+  }
+  ${atMediaQ.medium} {
+    height: 60%;
+    width: 75%;
+    padding: 40px 0px;
+  }
+  ${atMediaQ.large} {
+    height: 60%;
+    width: 75%;
+    padding: 40px 0px;
+  }
 `;
 
 export const LikeContainer = styled.div<{
@@ -54,52 +82,72 @@ export const LikeContainer = styled.div<{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 45px;
-  height: 40px;
-  margin: 10px;
   position: absolute;
-  bottom: 0;
-  right: 5px;
   cursor: ${({ valid }) => (valid ? 'pointer' : 'auto')};
   fill: ${({ liked }) => (liked ? 'red' : 'black')};
 
   &:hover svg {
     fill: ${({ valid }) => (valid ? 'red' : 'black')};
   }
+
+  ${atMediaQ.small} {
+    margin: 5px;
+    bottom: 0;
+    right: 0px;
+  }
+  ${atMediaQ.medium} {
+    margin: 10px;
+    bottom: 0;
+    right: 0px;
+  }
+  ${atMediaQ.large} {
+    margin: 10px;
+    bottom: 0;
+    right: 0px;
+  }
 `;
 
 const LikeCount = styled.span`
   font-size: 13px;
-  font-family: 'Spectral';
   font-weight: light;
+  margin-left: 5px;
 `;
 
 const Circle = styled.div`
-  width: 90px;
-  height: 90px;
   border-radius: 50%;
   border: 1px solid #b5b5b5;
   flex-shrink: 0;
-  margin: 0 30px;
-  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ${atMediaQ.medium} {
+    width: 70px;
+    height: 70px;
+    margin: 0 20px;
+  }
+  ${atMediaQ.large} {
+    width: 90px;
+    height: 90px;
+    margin: 0 30px;
+  }
 `;
 
 const Letter1 = styled.span`
   font-size: 44px;
-  font-family: 'Spectral';
   color: #676767;
-  position: absolute;
-  top: 13%;
-  left: 27%;
-`;
+  position: relative;
+  top: 3px;
 
-const Letter2 = styled.span`
-  font-size: 39px;
-  font-family: 'Spectral';
-  color: #676767;
-  position: absolute;
-  top: 30%;
-  left: 47%;
+  ${atMediaQ.small} {
+    font-size: 30px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 44px;
+  }
+  ${atMediaQ.large} {
+    font-size: 44px;
+  }
 `;
 
 const PortmanName = styled.span`
@@ -118,6 +166,7 @@ interface PostProps {
   currentUserOwns: boolean;
   postId: string;
   closePopup: TClosePopup;
+  loggedOut: boolean;
 }
 
 const Post: React.FC<PostProps> = ({
@@ -131,21 +180,19 @@ const Post: React.FC<PostProps> = ({
   currentUserOwns,
   date,
   postId,
-  closePopup
+  closePopup,
+  loggedOut
 }) => {
+  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
   const { book1Info, book2Info } = booksInfo;
   const dot = '·';
   const cacheId = `Post:${postId}`; // default naming
 
-  const { data, error, loading } = useMeQuery();
   const client = useApolloClient();
-
-  const loggedOut = !(data && data.me);
   const likePost = useLikePostMutation();
-
   const [authorInfoVisible, setAuthorInfoVisible] = useState(false);
 
-  const displayPopup = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const displayPopup = () => {
     closePopup.current();
     closePopup.current = () => setAuthorInfoVisible(false);
     setAuthorInfoVisible(true);
@@ -186,10 +233,11 @@ const Post: React.FC<PostProps> = ({
 
   return (
     <PostContainer>
-      <Circle>
-        <Letter1>{initial1}</Letter1>
-        <Letter2>{initial2}</Letter2>
-      </Circle>
+      {isSmall ? null : (
+        <Circle>
+          <Letter1>{initial1}</Letter1>
+        </Circle>
+      )}
       <ContentContainer>
         <AuthorInfo
           authorInfoVisible={authorInfoVisible}
@@ -225,7 +273,7 @@ const Post: React.FC<PostProps> = ({
         liked={currentUserLiked}
         valid={!loggedOut}
       >
-        <HeartOpenBook size="25px" />
+        <img alt="Like heart" src={Heart} width={isSmall ? '15px' : '20px'} />
         <LikeCount>{likeCount}</LikeCount>
       </LikeContainer>
     </PostContainer>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useApolloClient } from 'react-apollo-hooks';
 import { RouteComponentProps } from 'react-router-dom';
 import { styled } from 'linaria/react';
 
@@ -15,7 +14,6 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 30px;
-  font-family: 'Spectral';
   font-size: 24px;
   padding: 30px;
 `;
@@ -24,7 +22,6 @@ const ConfirmUser: React.FC<RouteComponentProps<Params>> = ({
   history,
   match
 }) => {
-  const client = useApolloClient();
   const confirm = useConfirmUserMutation();
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState<boolean>(false);

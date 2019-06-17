@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
@@ -19,15 +19,23 @@ import Footer from './components/Footer';
 import Login from './components/forms/Login';
 import Logout from './components/Logout';
 import ConfirmUser from './components/ConfirmUser';
+import About from './components/About';
+import ChangePassword from './components/forms/ChangePassword';
+import ResendConfirmation from './components/forms/ResendConfirmation';
+import ForgotPassword from './components/forms/ForgotPassword';
+import { useMyMediaQueries } from './util/util';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: #f2f2f2;
   min-height: 100vh;
+  justify-content: space-between;
 `;
 
-const Content = styled.div``;
+const Content = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 const httpLink = new HttpLink({
   uri: 'http://localhost:4000/graphql',
@@ -72,6 +80,12 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
+export const MediaQueryContext = React.createContext({
+  isSmall: true,
+  isMedium: false,
+  isLarge: false
+});
+
 const SiteContent = () => {
   return (
     <Container>
@@ -81,7 +95,11 @@ const SiteContent = () => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/logout" component={Logout} />
+        <Route exact path="/about" component={About} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/resend-confirmation" component={ResendConfirmation} />
         <Route path="/confirm-user/:token" component={ConfirmUser} />
+        <Route path="/change-password/:token" component={ChangePassword} />
       </Content>
       <Footer />
     </Container>
@@ -89,12 +107,15 @@ const SiteContent = () => {
 };
 
 const App = () => {
+  const { isSmall, isMedium, isLarge } = useMyMediaQueries();
   return (
-    <ApolloHooksProvider client={client}>
-      <Router>
-        <SiteContent />
-      </Router>
-    </ApolloHooksProvider>
+    <MediaQueryContext.Provider value={{ isSmall, isMedium, isLarge }}>
+      <ApolloHooksProvider client={client}>
+        <Router>
+          <SiteContent />
+        </Router>
+      </ApolloHooksProvider>
+    </MediaQueryContext.Provider>
   );
 };
 

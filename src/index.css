@@ -1,5 +1,7 @@
 body {
   margin: 0;
+  font-family: 'Spectral';
+  background-color: #f2f2f2;
 }
 html {
   box-sizing: border-box;

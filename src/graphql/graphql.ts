@@ -128,11 +128,25 @@ export const ME_QUERY = gql`
 
 export const REGISTER_USER = gql`
   mutation Register($data: RegisterInput!) {
-    register(data: $data) {
-      id
-      email
-      created
-    }
+    register(data: $data)
+  }
+`;
+
+export const FORGOT_PASSWORD = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email)
+  }
+`;
+
+export const RESEND_CONFIRMATION = gql`
+  mutation ResendConfirmation($email: String!) {
+    resendConfirmationEmail(email: $email)
+  }
+`;
+
+export const CHANGE_PASSWORD = gql`
+  mutation ChangePassword($data: ChangePasswordInput!) {
+    changePassword(data: $data)
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { styled } from 'linaria/react';
 import Transition, {
   TransitionStatus
@@ -7,14 +7,18 @@ import { TransitionGroup } from 'react-transition-group';
 
 import StyledButtonsBox from '../shared/StyledButtonsBox';
 import {
-  BOOK1_BLUE,
-  BOOK2_YELLOW,
   MAX_POST_LENGTH,
-  ERROR_RED,
   OPTION_FRAGMENT_ANIMATION_DURATION
 } from '../../util/constants';
 import { TOptionFragment } from '../shared/types';
 import { ExpandAndContractSpinner } from '../shared/Spinner';
+import {
+  BOOK1_BLUE,
+  BOOK2_YELLOW,
+  ERROR_RED,
+  atMediaQ
+} from '../../util/style';
+import { MediaQueryContext } from '../../App';
 
 const SelectedOption = styled.span<{
   whichBook: boolean;
@@ -22,8 +26,6 @@ const SelectedOption = styled.span<{
   transitionStatus: TransitionStatus;
 }>`
   background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
-  font-family: 'Spectral';
-  font-size: 16px;
   cursor: pointer;
   margin-right: 7px;
 
@@ -31,6 +33,16 @@ const SelectedOption = styled.span<{
   transition-timing-function: ease-in;
   opacity: ${({ transitionStatus }) =>
     transitionStatus === 'entered' ? 1 : 0};
+
+  ${atMediaQ.small} {
+    font-size: 14px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 16px;
+  }
+  ${atMediaQ.large} {
+    font-size: 16px;
+  }
 `;
 
 const SelectionBox = styled.div`
@@ -38,26 +50,42 @@ const SelectionBox = styled.div`
 `;
 
 const OverflowBox = styled.div`
-  height: 150px;
   overflow-y: scroll;
+
+  ${atMediaQ.small} {
+    height: 19vh;
+  }
+  ${atMediaQ.medium} {
+    height: 150px;
+  }
+  ${atMediaQ.large} {
+    height: 150px;
+  }
 `;
 
-const StyledResultAndControlsBox = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  ${atMediaQ.small} {
+    padding: 15px;
+  }
+  ${atMediaQ.medium} {
+    padding: 20px;
+  }
+  ${atMediaQ.large} {
+    padding: 20px;
+  }
 
   border-bottom: 1px solid #b8b8b8;
 `;
 
 const ErrorBox = styled.div`
-  font-family: 'Spectral';
   font-weight: medium;
   font-size: 15px;
   color: ${ERROR_RED};
   justify-self: flex-end;
-  margin-bottom: 10px;
-  height: 50px;
+  margin: 10px 0;
+  height: 25px;
 
   display: flex;
   justify-content: center;
@@ -83,9 +111,7 @@ const validate = (fragments: TOptionFragment[]) => {
   const oneOfEach = new Set(fragments.map(el => el.bookId)).size === 2;
 
   if (!oneOfEach) {
-    errors.push(
-      'Posts must use at least one Fragment from each author (color).'
-    );
+    errors.push('Posts must use at one of each color.');
   }
 
   return errors;
@@ -106,24 +132,40 @@ const SelectionAndControlsBox: React.FC<Props> = ({
   handleSubmit,
   loading
 }) => {
+  const { isSmall } = useContext(MediaQueryContext);
   const [errors, setErrors] = useState<FormErrors>([]);
+  const scrollRef = useRef<any>();
 
   const noSelection = selectedFragments.length === 0;
   const hasErrors = errors.length !== 0;
 
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      const maxScrollTop =
+        scrollRef.current.scrollHeight - scrollRef.current.clientHeight;
+      scrollRef.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+    }
+  };
+
   useEffect(() => {
     if (!noSelection) {
       setErrors(validate(selectedFragments));
+      scrollToBottom();
     } else if (hasErrors) {
       // so it doesn't set redundantly, initially
       setErrors([]);
     }
-  }, [selectedFragments]);
+  }, [selectedFragments, hasErrors, noSelection]);
 
   let content = null;
 
   if (loading) {
-    content = <ExpandAndContractSpinner dimension={75} margin={50} />;
+    content = (
+      <ExpandAndContractSpinner
+        dimension={isSmall ? 50 : 75}
+        margin={isSmall ? 30 : 50}
+      />
+    );
   } else {
     content = (
       <SelectionBox>
@@ -152,8 +194,8 @@ const SelectionAndControlsBox: React.FC<Props> = ({
   }
 
   return (
-    <StyledResultAndControlsBox>
-      <OverflowBox>{content}</OverflowBox>
+    <Container>
+      <OverflowBox ref={scrollRef}>{content}</OverflowBox>
       <ErrorsAndButtons>
         <ErrorBox>
           {errors.length > 0 ? <span>* {errors[0]}</span> : null}
@@ -175,7 +217,7 @@ const SelectionAndControlsBox: React.FC<Props> = ({
           </button>
         </StyledButtonsBox>
       </ErrorsAndButtons>
-    </StyledResultAndControlsBox>
+    </Container>
   );
 };
 

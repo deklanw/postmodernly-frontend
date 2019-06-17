@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { styled } from 'linaria/react';
-import { useMemo, useState } from 'react';
-import { Transition } from 'react-transition-group';
-import { TransitionStatus } from 'react-transition-group/Transition';
 
-import { whichBookToColor } from '../../util/util';
+import { whichBookToColor, useOutsideClick } from '../../util/util';
 import { TClosePopup } from '../shared/types';
 import ExitBox from '../shared/ExitBox';
+import { atMediaQ } from '../../util/style';
 
 const splitStringIntoThree = (text: string, search: string) => {
   const i = text.indexOf(search);
@@ -30,27 +28,55 @@ const Context = styled.div<{ visible: boolean }>`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 80px 55px;
-  left: 100%;
-  top: 100%;
-  width: 500px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   background: white;
-  filter: drop-shadow(9px 6px 20px rgba(0, 0, 0, 0.2));
+  box-shadow: 9px 6px 20px rgba(0, 0, 0, 0.2);
   z-index: 2;
 
-  font-family: 'Spectral';
-  font-size: 14px;
   color: #161616;
-  line-height: 1.5;
   text-align: justify;
 
   &:before {
-    font-size: 65px;
     content: '“';
     position: absolute;
-    left: 20px;
-    top: 20px;
     color: #5d5d5d;
+    ${atMediaQ.small} {
+      left: 20px;
+      top: 20px;
+      font-size: 50px;
+    }
+    ${atMediaQ.medium} {
+      left: 20px;
+      top: 20px;
+      font-size: 65px;
+    }
+    ${atMediaQ.large} {
+      left: 20px;
+      top: 20px;
+      font-size: 65px;
+    }
+  }
+
+  ${atMediaQ.small} {
+    padding: 60px 50px;
+    width: 100%;
+    max-width: 500px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  ${atMediaQ.medium} {
+    padding: 80px 55px;
+    width: 500px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  ${atMediaQ.large} {
+    padding: 80px 55px;
+    width: 500px;
+    font-size: 14px;
+    line-height: 1.5;
   }
 `;
 
@@ -61,53 +87,89 @@ const HighlightedOccurrence = styled.span<{ whichBook: boolean }>`
 const QuoteBlock = styled.div``;
 const ByAuthorBook = styled.div`
   position: absolute;
-  bottom: 25px;
-  right: 50px;
-  font-size: 15px;
   text-align: right;
-  line-height: 1.3;
   white-space: nowrap;
 
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  width: 400px;
+
+  ${atMediaQ.small} {
+    font-size: 13px;
+    line-height: 1.2;
+    bottom: 20px;
+    right: 50px;
+    width: 400px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 15px;
+    line-height: 1.3;
+    bottom: 25px;
+    right: 50px;
+    width: 400px;
+  }
+  ${atMediaQ.large} {
+    font-size: 15px;
+    line-height: 1.3;
+    bottom: 25px;
+    right: 50px;
+    width: 400px;
+  }
 `;
 const Author = styled.span`
   position: relative;
   &:before {
     content: '‒';
-    font-size: 60px;
     color: #5d5d5d;
     position: absolute;
-    top: -32px;
-    left: -40px;
+    ${atMediaQ.small} {
+      font-size: 50px;
+      top: -22px;
+      left: -40px;
+    }
+    ${atMediaQ.medium} {
+      font-size: 60px;
+      top: -32px;
+      left: -40px;
+    }
+    ${atMediaQ.large} {
+      font-size: 60px;
+      top: -32px;
+      left: -40px;
+    }
   }
-  font-family: 'Spectral';
   font-weight: light;
 `;
+
 const Book = styled.div`
-  font-family: 'Spectral';
   font-weight: light;
   font-style: italic;
   word-wrap: break-word;
 `;
 
-const Frag = styled.span`
+const Frag = styled.span<{ whichBook: boolean }>`
   cursor: pointer;
+
+  &:hover {
+    background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
+  }
 `;
 
 const FragmentText = styled.span<{
   whichBook: boolean;
+  ref: any;
 }>`
-  position: relative;
-  font-family: 'Spectral';
   font-weight: normal;
-  font-size: 16px;
   color: #161616;
   overflow-wrap: normal;
-  &:hover {
-    background-color: ${({ whichBook }) => whichBookToColor(whichBook)};
+  ${atMediaQ.small} {
+    font-size: 13px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 16px;
+  }
+  ${atMediaQ.large} {
+    font-size: 16px;
   }
 `;
 
@@ -138,9 +200,15 @@ const PostFragment: React.FC<FragmentUIProps> = ({
     setVisible(true);
   };
 
+  const node = useOutsideClick(() => setVisible(false));
+
   return (
-    <FragmentText whichBook={whichBook}>
-      <Frag onClick={displayPopup}>{fragmentText} </Frag>
+    <FragmentText ref={node}>
+      <>
+        <Frag whichBook={whichBook} onClick={displayPopup}>
+          {fragmentText}
+        </Frag>{' '}
+      </>
       <Context visible={visible}>
         <ExitBox onClick={() => setVisible(false)}>&#xd7;</ExitBox>
         <QuoteBlock>

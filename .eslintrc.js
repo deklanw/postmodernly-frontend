@@ -11,6 +11,8 @@ module.exports = {
     'react/prop-types': 0,
     'react/jsx-filename-extension': 0,
     'react/jsx-one-expression-per-line': 0,
+    'react/no-unescaped-entities': 0,
+    'consistent-return': 'warn',
     'no-console': 'warn',
     'no-unused-vars': 'warn',
     'jsx-a11y/label-has-associated-control': 'warn',
@@ -43,5 +45,8 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
       }
     }
+  },
+  env: {
+    browser: true
   }
 };

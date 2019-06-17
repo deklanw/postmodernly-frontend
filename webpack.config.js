@@ -13,7 +13,6 @@ module.exports = (env, argv) => {
     resolve: {
       extensions: ['.jsx', '.js', '.tsx', '.ts'],
       alias: {
-        'core-js': 'core-js3',
         'react-dom': '@hot-loader/react-dom'
       }
     },

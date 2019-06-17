@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import { Link } from 'react-router-dom';
 
 import { useMeQuery } from '../generated/graphql';
+import { atMediaQ } from '../util/style';
+import { MediaQueryContext } from '../App';
+import { useOutsideClick } from '../util/util';
+import MenuIcon from '../assets/svg/menu.svg';
 
 const Container = styled.div`
   display: flex;
   flex-direction: horizontal;
   justify-content: space-between;
-  align-items: flex-start;
-  margin: 20px 30px;
+  align-items: center;
+  ${atMediaQ.small} {
+    margin: 15px;
+  }
+  ${atMediaQ.medium} {
+    margin: 20px 30px;
+  }
+  ${atMediaQ.large} {
+    margin: 20px 30px;
+  }
 `;
 
 const Logo = styled.span`
@@ -20,33 +33,65 @@ const Logo = styled.span`
 `;
 
 const Heading = styled(Link)`
-  font-family: 'Spectral';
   font-weight: medium;
   font-size: 36px;
   color: #333333;
   text-decoration: none;
+
+  ${atMediaQ.small} {
+    font-size: 24px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 30px;
+  }
+  ${atMediaQ.large} {
+    font-size: 36px;
+  }
 `;
 
 const Subheading = styled.span`
-  font-family: 'Spectral';
   font-weight: medium;
-  font-size: 18px;
   color: #4d4d4d;
 
-  margin-left: 5px;
-  margin-top: 5px;
+  ${atMediaQ.small} {
+    font-size: 12px;
+    margin-left: 5px;
+    margin-top: 2px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 16px;
+    margin-left: 4px;
+    margin-top: 4px;
+  }
+  ${atMediaQ.large} {
+    font-size: 18px;
+    margin-left: 5px;
+    margin-top: 5px;
+  }
 `;
 
 const Links = styled.span`
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
 
-  width: 500px;
+  ${atMediaQ.small} {
+    height: 250px;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+  }
+
+  ${atMediaQ.medium} {
+    flex-direction: row;
+    width: 400px;
+  }
+  ${atMediaQ.large} {
+    flex-direction: row;
+    width: 600px;
+  }
 `;
 
 const LinkItem = styled(Link)`
-  font-family: 'Spectral';
   font-weight: medium;
   font-size: 20px;
   text-decoration: none;
@@ -54,15 +99,45 @@ const LinkItem = styled(Link)`
 `;
 
 const Email = styled.span`
-  font-family: 'Spectral';
   font-weight: medium;
-  font-size: 22px;
+  font-size: 20px;
   text-decoration: none;
-  color: #2d48cc;
+  color: #34417e;
+`;
+
+const SideDrawerContainer = styled.div<{ isOpen: boolean }>`
+  height: 100%;
+  background: white;
+  box-shadow: 1px 0px 7px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  right: 0px;
+  width: 50%;
+  max-width: 400px;
+  z-index: 200;
+  transform: ${({ isOpen }) =>
+    isOpen ? 'translateX(0%)' : 'translateX(100%)'};
+  transition: transform 0.3s ease-out;
+`;
+
+const UnstyledButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
 `;
 
 const Header = () => {
   const { data, error, loading } = useMeQuery();
+  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+  const [isOpen, setIsOpen] = useState(false);
+  const node = useOutsideClick(() => setIsOpen(false));
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: swipeData => {
+      setIsOpen(false);
+    }
+  });
+
+  const flipIsOpen = () => setIsOpen(b => !b);
 
   const loggedOut = !(data && data.me);
 
@@ -71,7 +146,8 @@ const Header = () => {
   if (loggedOut && !loading) {
     content = (
       <>
-        <LinkItem to="/">About</LinkItem>
+        <LinkItem to="/">Home</LinkItem>
+        <LinkItem to="/about">About</LinkItem>
         <LinkItem to="/register">Sign-up</LinkItem>
         <LinkItem to="/login">Login</LinkItem>
       </>
@@ -81,7 +157,8 @@ const Header = () => {
     content = (
       <>
         <Email>{data!.me!.email}</Email>
-        <LinkItem to="/">About</LinkItem>
+        <LinkItem to="/">Home</LinkItem>
+        <LinkItem to="/about">About</LinkItem>
         <LinkItem to="/logout">Logout</LinkItem>
       </>
     );
@@ -91,9 +168,22 @@ const Header = () => {
     <Container>
       <Logo>
         <Heading to="/">Postmodernly</Heading>
-        <Subheading>Digital cut-ups</Subheading>
+        {!isSmall && <Subheading>Digital cut-ups</Subheading>}
       </Logo>
-      <Links>{content}</Links>
+      {!isSmall ? (
+        <Links>{content}</Links>
+      ) : (
+        <>
+          <div {...swipeHandlers}>
+            <SideDrawerContainer isOpen={isOpen} ref={node}>
+              <Links>{content}</Links>
+            </SideDrawerContainer>
+          </div>
+          <UnstyledButton type="button" onClick={flipIsOpen}>
+            <img alt="Menu icon" src={MenuIcon} width="30px" />
+          </UnstyledButton>
+        </>
+      )}
     </Container>
   );
 };

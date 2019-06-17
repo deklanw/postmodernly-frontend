@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useContext } from 'react';
 import { styled } from 'linaria/react';
 import { TransitionGroup } from 'react-transition-group';
 import Transition, {
@@ -6,16 +6,18 @@ import Transition, {
 } from 'react-transition-group/Transition';
 
 import { TOptionFragment, TBooksInfo } from '../shared/types';
-import {
-  BOOK1_BLUE,
-  BOOK2_YELLOW,
-  OPTION_FRAGMENT_ANIMATION_DURATION,
-  ERROR_RED
-} from '../../util/constants';
+import { OPTION_FRAGMENT_ANIMATION_DURATION } from '../../util/constants';
 import StyledButtonsBox from '../shared/StyledButtonsBox';
 import { ExpandAndContractSpinner } from '../shared/Spinner';
 import { Maybe } from '../../generated/graphql';
 import BookLover from '../../assets/svg/book_lover.svg';
+import {
+  BOOK1_BLUE,
+  BOOK2_YELLOW,
+  ERROR_RED,
+  atMediaQ
+} from '../../util/style';
+import { MediaQueryContext } from '../../App';
 
 const ButtonsContainer = styled.div`
   width: 100%;
@@ -23,11 +25,20 @@ const ButtonsContainer = styled.div`
   padding: 0px 6px;
 `;
 
-const StyledOptionsBox = styled.div`
-  padding: 20px;
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${atMediaQ.small} {
+    padding: 15px;
+  }
+  ${atMediaQ.medium} {
+    padding: 20px;
+  }
+  ${atMediaQ.large} {
+    padding: 20px;
+  }
 `;
 
 const StyledAuthorsInfoBox = styled.div`
@@ -35,10 +46,20 @@ const StyledAuthorsInfoBox = styled.div`
   flex-direction: row;
   justify-content: center;
 
-  font-family: 'Spectral';
   font-size: 13px;
-  height: 30px;
-  margin-bottom: 20px;
+
+  ${atMediaQ.small} {
+    margin-bottom: 10px;
+    height: 25px;
+  }
+  ${atMediaQ.medium} {
+    margin-bottom: 15px;
+    height: 25px;
+  }
+  ${atMediaQ.large} {
+    margin-bottom: 15px;
+    height: 25px;
+  }
 `;
 
 const AuthorInfo = styled.div`
@@ -57,9 +78,18 @@ const AuthorCircle = styled.div<{ color: string }>`
 `;
 
 const OverflowBox = styled.div`
-  height: 300px;
   overflow-y: scroll;
   width: 100%;
+
+  ${atMediaQ.small} {
+    height: 29vh;
+  }
+  ${atMediaQ.medium} {
+    height: 300px;
+  }
+  ${atMediaQ.large} {
+    height: 300px;
+  }
 `;
 
 const FragmentOption = styled.span<{
@@ -68,8 +98,6 @@ const FragmentOption = styled.span<{
   transitionStatus: TransitionStatus;
 }>`
   background-color: ${props => (props.whichBook ? BOOK1_BLUE : BOOK2_YELLOW)};
-  font-family: 'Spectral';
-  font-size: 14px;
   color: black;
   display: inline-block;
   margin: 4px 6px;
@@ -80,17 +108,35 @@ const FragmentOption = styled.span<{
   transition-timing-function: ease-out;
   opacity: ${({ transitionStatus }) =>
     transitionStatus === 'entered' ? 1 : 0};
+
+  ${atMediaQ.small} {
+    font-size: 13px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 14px;
+  }
+  ${atMediaQ.large} {
+    font-size: 14px;
+  }
 `;
 
 const LimitBox = styled.div`
-  height: 15px;
-  margin: 20px 0;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  font-family: 'Spectral';
-  font-size: 16px;
+  ${atMediaQ.small} {
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  ${atMediaQ.medium} {
+    margin: 15px 0;
+    font-size: 14px;
+  }
+  ${atMediaQ.large} {
+    margin: 15px 0;
+    font-size: 14px;
+  }
 `;
 
 const WarningNumber = styled.span`
@@ -129,6 +175,7 @@ const OptionsBox: React.FC<Props> = ({
   remainingRefreshes,
   loading
 }) => {
+  const { isSmall } = useContext(MediaQueryContext);
   const [refreshing, setRefreshing] = useState(false);
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -157,13 +204,20 @@ const OptionsBox: React.FC<Props> = ({
   if (loading) {
     content = (
       <OverflowBox>
-        <ExpandAndContractSpinner dimension={100} margin={50} />
+        <ExpandAndContractSpinner
+          dimension={isSmall ? 50 : 100}
+          margin={isSmall ? 25 : 50}
+        />
       </OverflowBox>
     );
   } else if (outOfOptionsAndNoRefresh) {
     content = (
       <CenteredSvg>
-        <img src={BookLover} width="350px" alt="Woman reading" />
+        <img
+          src={BookLover}
+          width={isSmall ? '275px' : '350px'}
+          alt="Woman reading"
+        />
       </CenteredSvg>
     );
   } else {
@@ -196,7 +250,7 @@ const OptionsBox: React.FC<Props> = ({
   }
 
   return (
-    <StyledOptionsBox>
+    <Container>
       {!outOfOptionsAndNoRefresh && (
         <StyledAuthorsInfoBox>
           {bookInfo && !loading && !outOfOptionsAndNoRefresh ? (
@@ -218,7 +272,7 @@ const OptionsBox: React.FC<Props> = ({
         {remainingSeconds !== null &&
         remainingSeconds > 0 &&
         remainingRefreshes !== null &&
-        remainingRefreshes <= 2 ? (
+        remainingRefreshes < 2 ? (
           <>
             <WarningNumber>{remainingRefreshes}</WarningNumber> refreshes left.
             More available in {remainingSeconds} seconds.
@@ -244,11 +298,11 @@ const OptionsBox: React.FC<Props> = ({
                 remainingSeconds > 0)
             }
           >
-            Get More
+            Refresh
           </button>
         </StyledButtonsBox>
       </ButtonsContainer>
-    </StyledOptionsBox>
+    </Container>
   );
 };
 

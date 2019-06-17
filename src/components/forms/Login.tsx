@@ -1,11 +1,12 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import { FormikConfig, Formik } from 'formik';
+import { styled } from 'linaria/react';
 
 import { GenericFormBox, loginValidation, MyTextField } from '../shared/input';
 import { ME_QUERY } from '../../graphql/graphql';
 import { useLoginUserMutation } from '../../generated/graphql';
-import { SERVER_DOWN } from '../../util/constants';
+import { SOMETHING_WENT_WRONG } from '../../util/constants';
 import { superstructToFormik } from '../../util/util';
 
 interface FormValues {
@@ -13,6 +14,15 @@ interface FormValues {
   email: string;
   password: string;
 }
+
+const ForgotPassword = styled(Link)`
+  font-size: 14px;
+`;
+
+const ForgotContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const loginUser = useLoginUserMutation();
@@ -62,7 +72,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         }
       } catch (errors) {
         setStatus({
-          error: SERVER_DOWN
+          error: SOMETHING_WENT_WRONG
         });
       }
     }
@@ -85,6 +95,11 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
               name="password"
               placeholder="Your password"
             />
+            <ForgotContainer>
+              <ForgotPassword to="/forgot-password">
+                Forgot your password?
+              </ForgotPassword>
+            </ForgotContainer>
             <button type="submit" disabled={isSubmitting || !isValid}>
               Submit
             </button>

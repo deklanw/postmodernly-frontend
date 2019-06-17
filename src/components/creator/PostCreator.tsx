@@ -17,6 +17,7 @@ import {
 import OptionsBox from './OptionsBox';
 import GenericError from '../shared/GenericError';
 import { useInterval } from '../../util/util';
+import { atMediaQ } from '../../util/style';
 
 function immutableShuffle<T>(arr: T[]): T[] {
   const newArray = arr.slice();
@@ -30,6 +31,14 @@ const Container = styled.div`
   background-color: white;
   border: 1px #c4c4c4 solid;
   border-radius: 5px;
+  flex: 1;
+  max-width: 500px;
+  ${atMediaQ.small} {
+    width: 100%;
+  }
+  ${atMediaQ.medium} {
+    width: 100%;
+  }
 `;
 
 const formatOptions = (
@@ -75,7 +84,9 @@ const formatOptions = (
   };
 };
 
-const PostCreator = () => {
+const PostCreator: React.FC<{ extraOnSubmit?: () => void }> = ({
+  extraOnSubmit
+}) => {
   const getNewPostOptions = useGetNewPostOptionsMutation();
   const getPostOptions = useGetPostOptionsMutation();
   const makePost = useMakePostMutation();
@@ -131,8 +142,6 @@ const PostCreator = () => {
         setOptionsBoxLoading(false);
       }
 
-      // console.log(options);
-
       if (options.remaining) {
         setRemainingLimit(options.remaining);
         setRefreshTime(
@@ -160,10 +169,14 @@ const PostCreator = () => {
       });
 
       if (data!.makePost) {
-        setSelectedFragments([]);
-        setFragments([]);
-        getFragmentOptions(true);
-        setSelectionAndControlBoxLoading(false);
+        if (extraOnSubmit) {
+          extraOnSubmit();
+        } else {
+          setSelectedFragments([]);
+          setFragments([]);
+          getFragmentOptions(true);
+          setSelectionAndControlBoxLoading(false);
+        }
       }
     } catch (e) {
       setErrored(true);

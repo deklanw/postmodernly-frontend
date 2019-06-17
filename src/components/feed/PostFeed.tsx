@@ -1,21 +1,38 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { styled } from 'linaria/react';
 import dayjs from 'dayjs';
 import { useSubscription } from 'react-apollo-hooks';
 
 import Post from './Post';
-import { useGetPostsWithCursorQuery } from '../../generated/graphql';
+import {
+  useGetPostsWithCursorQuery,
+  useMeQuery
+} from '../../generated/graphql';
 import { ExpandAndContractSpinner } from '../shared/Spinner';
 import { DATE_FORMAT, POSTS_FEED_LIMIT } from '../../util/constants';
 import { GET_POSTS_WITH_CURSOR, NEW_POST_SUB } from '../../graphql/graphql';
 import GenericError from '../shared/GenericError';
+import { atMediaQ } from '../../util/style';
+import { MediaQueryContext } from '../../App';
+import PostCreator from '../creator/PostCreator';
+import ArrowLeft from '../../assets/svg/arrow-left.svg';
 
-const LoadMoreButton = styled.button`
-  font-family: 'Spectral';
-  font-size: 14px;
-  height: 35px;
-  width: 180px;
+const Container = styled.div`
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+  ${atMediaQ.large} {
+    margin-right: 20px;
+  }
+`;
+
+const BottomFeedButton = styled.button`
+  font-family: inherit;
   border-radius: 2px;
   background-color: white;
   border: 1px solid black;
@@ -25,29 +42,53 @@ const LoadMoreButton = styled.button`
   }
 
   cursor: pointer;
+
+  ${atMediaQ.small} {
+    font-size: 12px;
+    height: 30px;
+    width: 150px;
+  }
+  ${atMediaQ.medium} {
+    font-size: 14px;
+    height: 35px;
+    width: 180px;
+  }
+  ${atMediaQ.large} {
+    font-size: 14px;
+    height: 35px;
+    width: 180px;
+  }
 `;
 
-const ButtonContainer = styled.div`
+const BottomButtonContainer = styled.div`
   display: flex;
   width: 100%;
-  justify-content: flex-end;
-  margin-top: 10px;
-`;
-
-const FeedAndButton = styled.div`
-  grid-column-start: 1;
-  grid-column-end: span 16;
+  justify-content: space-between;
+  margin-top: 15px;
 `;
 
 const StyledPostFeed = styled.div`
   background-color: white;
 
   border: 1px #c4c4c4 solid;
-  border-radius: 5px;
+  width: 100%;
+
+  ${atMediaQ.medium} {
+    border-radius: 5px;
+  }
+  ${atMediaQ.large} {
+    border-radius: 5px;
+  }
 
   & > :first-of-type {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    ${atMediaQ.medium} {
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+    ${atMediaQ.large} {
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
   }
 
   & > :last-of-type {
@@ -57,20 +98,76 @@ const StyledPostFeed = styled.div`
   }
 `;
 
-const PostFeed = () => {
+const TopButtonContainer = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const OpenPostCreatorButton = styled.button`
+  font-family: inherit;
+  font-weight: 400;
+
+  border-radius: 2px;
+
+  background-color: #515151;
+  color: white;
+  border: 1px solid black;
+
+  margin-left: auto;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  cursor: pointer;
+
+  ${atMediaQ.small} {
+    font-size: 13px;
+    height: 30px;
+    width: 100%;
+  }
+  ${atMediaQ.medium} {
+    font-size: 14px;
+    height: 35px;
+    width: 180px;
+    margin-bottom: 5px;
+  }
+`;
+
+const ArrowBackContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  font-size: 15px;
+`;
+
+const GoBackArrow = styled.img`
+  width: 15px;
+  margin-right: 7px;
+`;
+
+const PostFeed: React.FC = () => {
   const closePopupRef = useRef<() => void>(() => null);
+  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
 
   const [areMorePosts, setAreMorePosts] = useState(true);
+  const [postCreatorOpen, setPostCreatorOpen] = useState(false);
+  const togglePostCreator = () => setPostCreatorOpen(b => !b);
 
   const { data, error, loading, fetchMore } = useGetPostsWithCursorQuery({
-    variables: { limit: POSTS_FEED_LIMIT, cursor: null }
+    variables: {
+      limit: POSTS_FEED_LIMIT,
+      cursor: null
+    },
+    fetchPolicy: 'network-only' // when change page, don't keep paginated results in cache, just refetch on return to this route
   });
 
-  const {
-    data: subData,
-    error: subError,
-    loading: subLoading
-  } = useSubscription(NEW_POST_SUB, {
+  const { data: meData, error: meError, loading: meLoading } = useMeQuery();
+  const loggedOut = !(meData && meData.me);
+
+  useSubscription(NEW_POST_SUB, {
     onSubscriptionData: ({ client, subscriptionData }) => {
       client.writeQuery({
         query: GET_POSTS_WITH_CURSOR,
@@ -89,7 +186,7 @@ const PostFeed = () => {
   });
 
   let innerContent = null;
-  let buttonStuff = null;
+  let lowerButtons = null;
 
   if (loading) {
     innerContent = <ExpandAndContractSpinner dimension={100} margin={200} />;
@@ -121,16 +218,19 @@ const PostFeed = () => {
         }
       });
 
-    buttonStuff = (
-      <ButtonContainer>
-        <LoadMoreButton
+    lowerButtons = (
+      <BottomButtonContainer>
+        <BottomFeedButton type="submit" onClick={() => window.scrollTo(0, 0)}>
+          Go To Top
+        </BottomFeedButton>
+        <BottomFeedButton
           type="submit"
           onClick={morePosts}
           disabled={!areMorePosts}
         >
           Load Older Posts
-        </LoadMoreButton>
-      </ButtonContainer>
+        </BottomFeedButton>
+      </BottomButtonContainer>
     );
 
     innerContent = posts.map(
@@ -194,6 +294,7 @@ const PostFeed = () => {
             currentUserLiked={currentUserLiked}
             currentUserOwns={currentUserOwns}
             closePopup={closePopupRef}
+            loggedOut={loggedOut}
           />
         );
       }
@@ -201,10 +302,29 @@ const PostFeed = () => {
   }
 
   return (
-    <FeedAndButton>
-      <StyledPostFeed>{innerContent}</StyledPostFeed>
-      {buttonStuff}
-    </FeedAndButton>
+    <Container>
+      {postCreatorOpen && !isLarge ? (
+        <>
+          <ArrowBackContainer onClick={togglePostCreator}>
+            <GoBackArrow alt="Go back arrow" src={ArrowLeft} />
+            Back to Posts
+          </ArrowBackContainer>
+          <PostCreator extraOnSubmit={() => setPostCreatorOpen(false)} />
+        </>
+      ) : (
+        <>
+          {!isLarge && (
+            <TopButtonContainer>
+              <OpenPostCreatorButton onClick={togglePostCreator}>
+                Craft a post
+              </OpenPostCreatorButton>
+            </TopButtonContainer>
+          )}
+          <StyledPostFeed>{innerContent}</StyledPostFeed>
+          {lowerButtons}
+        </>
+      )}
+    </Container>
   );
 };
 
