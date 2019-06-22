@@ -12,7 +12,7 @@ import MenuIcon from '../assets/svg/menu.svg';
 
 const Container = styled.div`
   display: flex;
-  flex-direction: horizontal;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   ${atMediaQ.small} {
@@ -33,8 +33,7 @@ const Logo = styled.span`
 `;
 
 const Heading = styled(Link)`
-  font-weight: medium;
-  font-size: 36px;
+  font-weight: 500;
   color: #333333;
   text-decoration: none;
 
@@ -50,7 +49,7 @@ const Heading = styled(Link)`
 `;
 
 const Subheading = styled.span`
-  font-weight: medium;
+  font-weight: 500;
   color: #4d4d4d;
 
   ${atMediaQ.small} {
@@ -83,26 +82,21 @@ const Links = styled.span`
 
   ${atMediaQ.medium} {
     flex-direction: row;
-    width: 400px;
+    width: 50%;
+    max-width: 450px;
   }
   ${atMediaQ.large} {
     flex-direction: row;
-    width: 600px;
+    width: 40%;
+    max-width: 600px;
   }
 `;
 
 const LinkItem = styled(Link)`
-  font-weight: medium;
+  font-weight: 500;
   font-size: 20px;
   text-decoration: none;
   color: #333333;
-`;
-
-const Email = styled.span`
-  font-weight: medium;
-  font-size: 20px;
-  text-decoration: none;
-  color: #34417e;
 `;
 
 const SideDrawerContainer = styled.div<{ isOpen: boolean }>`
@@ -112,8 +106,9 @@ const SideDrawerContainer = styled.div<{ isOpen: boolean }>`
   position: fixed;
   top: 0;
   right: 0px;
-  width: 50%;
+  width: 60%;
   max-width: 400px;
+  min-width: 300px;
   z-index: 200;
   transform: ${({ isOpen }) =>
     isOpen ? 'translateX(0%)' : 'translateX(100%)'};
@@ -128,7 +123,7 @@ const UnstyledButton = styled.button`
 
 const Header = () => {
   const { data, error, loading } = useMeQuery();
-  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+  const { isSmall } = useContext(MediaQueryContext);
   const [isOpen, setIsOpen] = useState(false);
   const node = useOutsideClick(() => setIsOpen(false));
   const swipeHandlers = useSwipeable({
@@ -156,7 +151,6 @@ const Header = () => {
   if (!loggedOut) {
     content = (
       <>
-        <Email>{data!.me!.email}</Email>
         <LinkItem to="/">Home</LinkItem>
         <LinkItem to="/about">About</LinkItem>
         <LinkItem to="/logout">Logout</LinkItem>

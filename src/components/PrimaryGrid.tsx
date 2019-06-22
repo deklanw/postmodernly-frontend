@@ -25,7 +25,7 @@ const Container = styled.div`
   }
 `;
 const PrimaryGrid = () => {
-  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+  const { isLarge } = useContext(MediaQueryContext);
 
   return (
     <Container>

@@ -55,7 +55,7 @@ export const StyledInput = styled.input<{ error: any }>`
   outline: ${({ error }) => (error ? `1px solid ${ERROR_RED}` : 'unset')};
   border: none;
   font-family: inherit;
-  font-weight: light;
+  font-weight: 300;
   color: #333333;
 
   ${atMediaQ.small} {
@@ -87,7 +87,7 @@ export const InputField: React.SFC<FieldProps<any>> = ({
 
 const Container = styled.div`
   display: flex;
-  flex-direction: horizontal;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 `;
@@ -170,7 +170,7 @@ const FormBox = styled.div`
 `;
 
 const Header = styled.span`
-  font-weight: medium;
+  font-weight: 500;
 
   ${atMediaQ.small} {
     font-size: 22px;
@@ -184,7 +184,7 @@ const Header = styled.span`
 `;
 
 const ErrorStatus = styled.div`
-  font-weight: medium;
+  font-weight: 500;
   color: ${ERROR_RED};
 
   ${atMediaQ.small} {
@@ -199,7 +199,7 @@ const ErrorStatus = styled.div`
 `;
 
 const SuccessStatus = styled.div`
-  font-weight: medium;
+  font-weight: 500;
   color: ${SUCCESS_GREEN};
 
   ${atMediaQ.small} {

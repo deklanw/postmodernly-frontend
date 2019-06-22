@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as ReactApollo from 'react-apollo';
 import * as ReactApolloHooks from 'react-apollo-hooks';
 export type Maybe<T> = T | null;
+export type MaybePromise<T> = Promise<T> | T;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -33,7 +34,7 @@ export type Book = {
 export type BookFragmentOptions = {
   __typename?: 'BookFragmentOptions';
   book: Book;
-  fragmentOptions: Array<FragmentOptionUser>;
+  fragmentOptions: Array<FragmentOption>;
 };
 
 export type ChangePasswordInput = {
@@ -262,10 +263,7 @@ export type BookOptionsFragment = { __typename?: 'BookFragmentOptions' } & {
       author: { __typename?: 'Author' } & Pick<Author, 'name'>;
     };
   fragmentOptions: Array<
-    { __typename?: 'FragmentOptionUser' } & Pick<
-      FragmentOptionUser,
-      'order'
-    > & {
+    { __typename?: 'FragmentOption' } & Pick<FragmentOption, 'order'> & {
         fragment: { __typename?: 'Fragment' } & Pick<
           Fragment,
           'id' | 'fragmentText'

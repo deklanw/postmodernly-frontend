@@ -10,7 +10,6 @@ const splitStringIntoThree = (text: string, search: string) => {
   const i = text.indexOf(search);
 
   if (i === -1) {
-    console.log(text, search);
     throw Error('Fragment not contained in context');
   }
 
@@ -32,7 +31,7 @@ const Context = styled.div<{ visible: boolean }>`
   left: 50%;
   transform: translateX(-50%);
   background: white;
-  box-shadow: 9px 6px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 15px 35px hsla(0, 0%, 0%, 0.2);
   z-index: 2;
 
   color: #161616;
@@ -138,11 +137,11 @@ const Author = styled.span`
       left: -40px;
     }
   }
-  font-weight: light;
+  font-weight: 300;
 `;
 
 const Book = styled.div`
-  font-weight: light;
+  font-weight: 300;
   font-style: italic;
   word-wrap: break-word;
 `;

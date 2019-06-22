@@ -9,7 +9,7 @@ import PostFragment from './PostFragment';
 import AuthorInfo from './AuthorInfo';
 import { atMediaQ } from '../../util/style';
 import { MediaQueryContext } from '../../App';
-import Heart from '../../assets/svg/heart.svg';
+import Heart from '../../assets/svg/Heart';
 
 const PostContainer = styled.div`
   position: relative;
@@ -18,18 +18,16 @@ const PostContainer = styled.div`
   background-color: white;
   flex-direction: row;
   align-items: center;
+
   ${atMediaQ.small} {
     line-height: 1.1;
-  }
-  ${atMediaQ.medium} {
-  }
-  ${atMediaQ.large} {
   }
 `;
 
 const AuthorHeader = styled.div`
   font-weight: 300;
   font-size: 13px;
+
   ${atMediaQ.small} {
     font-size: 11px;
   }
@@ -77,7 +75,7 @@ const ContentContainer = styled.div`
 export const LikeContainer = styled.div<{
   liked: boolean;
   valid: boolean;
-  onClick: any;
+  onClick: () => void;
 }>`
   display: flex;
   justify-content: space-between;
@@ -88,6 +86,19 @@ export const LikeContainer = styled.div<{
 
   &:hover svg {
     fill: ${({ valid }) => (valid ? 'red' : 'black')};
+  }
+
+  & svg {
+    fill: ${({ liked }) => (liked ? 'red' : 'black')};
+    ${atMediaQ.small} {
+      width: 15px;
+    }
+    ${atMediaQ.medium} {
+      width: 20px;
+    }
+    ${atMediaQ.large} {
+      width: 20px;
+    }
   }
 
   ${atMediaQ.small} {
@@ -109,7 +120,7 @@ export const LikeContainer = styled.div<{
 
 const LikeCount = styled.span`
   font-size: 13px;
-  font-weight: light;
+  font-weight: 300;
   margin-left: 5px;
 `;
 
@@ -183,7 +194,7 @@ const Post: React.FC<PostProps> = ({
   closePopup,
   loggedOut
 }) => {
-  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+  const { isSmall } = useContext(MediaQueryContext);
   const { book1Info, book2Info } = booksInfo;
   const dot = '·';
   const cacheId = `Post:${postId}`; // default naming
@@ -211,7 +222,7 @@ const Post: React.FC<PostProps> = ({
       client.writeFragment({
         id: cacheId,
         fragment: gql`
-          fragment LikeUpdateFragment on GetPostsWithCursor {
+          fragment LikeUpdateFragment on Post {
             currentUserLiked
             likeCount
           }
@@ -219,21 +230,17 @@ const Post: React.FC<PostProps> = ({
         data: {
           currentUserLiked: !currentUserLiked,
           likeCount: likeCount + (currentUserLiked ? -1 : 1),
-          __typename: 'GetPostsWithCursor'
+          __typename: 'Post'
         }
-        // variables: {
-        //   cursor: null,
-        //   limit: POSTS_FEED_LIMIT
-        // }
       });
     } else {
-      console.log('Cannot like post', loggedOut, currentUserOwns);
+      // indicate inability to like?
     }
   };
 
   return (
     <PostContainer>
-      {isSmall ? null : (
+      {!isSmall && (
         <Circle>
           <Letter1>{initial1}</Letter1>
         </Circle>
@@ -273,7 +280,7 @@ const Post: React.FC<PostProps> = ({
         liked={currentUserLiked}
         valid={!loggedOut}
       >
-        <img alt="Like heart" src={Heart} width={isSmall ? '15px' : '20px'} />
+        <Heart />
         <LikeCount>{likeCount}</LikeCount>
       </LikeContainer>
     </PostContainer>

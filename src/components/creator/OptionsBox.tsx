@@ -153,7 +153,7 @@ const CenteredSvg = styled.div`
 type Props = {
   orderedFragments: TOptionFragment[];
   selectedFragments: TOptionFragment[];
-  bookInfo: TBooksInfo | undefined;
+  bookInfo: Maybe<TBooksInfo>;
   addFragmentSelection: (f: TOptionFragment) => void;
   clearSelectedFragments: () => void;
   getNewFragmentOptions: () => Promise<void>;

@@ -80,7 +80,7 @@ const Container = styled.div`
 `;
 
 const ErrorBox = styled.div`
-  font-weight: medium;
+  font-weight: 500;
   font-size: 15px;
   color: ${ERROR_RED};
   justify-self: flex-end;
@@ -111,7 +111,7 @@ const validate = (fragments: TOptionFragment[]) => {
   const oneOfEach = new Set(fragments.map(el => el.bookId)).size === 2;
 
   if (!oneOfEach) {
-    errors.push('Posts must use at one of each color.');
+    errors.push('Posts must use one of each color.');
   }
 
   return errors;

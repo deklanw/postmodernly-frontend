@@ -1,5 +1,7 @@
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
+const CopyPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
@@ -48,7 +50,17 @@ module.exports = (env, argv) => {
             { loader: 'css-loader', options: { sourceMap: dev } }
           ]
         },
-        { test: /\.(a?png|svg)$/, use: 'url-loader?limit=10000' },
+        {
+          test: /\.(png|jpg|gif|svg)$/i,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 8192
+              }
+            }
+          ]
+        },
         {
           test: /\.(jpe?g|gif|bmp|mp3|mp4|ogg|wav|eot|ttf|woff|woff2)$/,
           use: 'file-loader'
@@ -56,6 +68,8 @@ module.exports = (env, argv) => {
       ]
     },
     plugins: [
+      new Dotenv({ safe: true, path: dev ? './.env.dev' : './.env.prod' }),
+      new CopyPlugin([{ from: './public/_redirects', to: '.' }]),
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: './public/index.html',

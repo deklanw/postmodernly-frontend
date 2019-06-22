@@ -25,9 +25,10 @@ function immutableShuffle<T>(arr: T[]): T[] {
 }
 const initSelectedFragments: TOptionFragment[] = [];
 const initFragmentOptions: TOptionFragment[] = [];
-const initBookInfo: TBooksInfo | undefined = undefined;
+const initBookInfo: Maybe<TBooksInfo> = null;
 
 const Container = styled.div`
+  user-select: none;
   background-color: white;
   border: 1px #c4c4c4 solid;
   border-radius: 5px;
@@ -84,8 +85,8 @@ const formatOptions = (
   };
 };
 
-const PostCreator: React.FC<{ extraOnSubmit?: () => void }> = ({
-  extraOnSubmit
+const PostCreator: React.FC<{ alternativeOnSubmit?: () => void }> = ({
+  alternativeOnSubmit
 }) => {
   const getNewPostOptions = useGetNewPostOptionsMutation();
   const getPostOptions = useGetPostOptionsMutation();
@@ -101,21 +102,18 @@ const PostCreator: React.FC<{ extraOnSubmit?: () => void }> = ({
   );
   const [refreshTime, setRefreshTime] = useState<Maybe<dayjs.Dayjs>>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<Maybe<number>>(null);
+  const [orderedFragments, setFragments] = useState(initFragmentOptions);
+  const [selectedFragments, setSelectedFragments] = useState(
+    initSelectedFragments
+  );
+  const [bookInfo, setBookInfo] = useState<Maybe<TBooksInfo>>(initBookInfo);
+  const [errored, setErrored] = useState(false);
 
   useInterval(() => {
     if (refreshTime !== null) {
       setRemainingSeconds(refreshTime.diff(dayjs(), 'second', false));
     }
   }, 1000);
-
-  const [orderedFragments, setFragments] = useState(initFragmentOptions);
-  const [selectedFragments, setSelectedFragments] = useState(
-    initSelectedFragments
-  );
-  const [bookInfo, setBookInfo] = useState<TBooksInfo | undefined>(
-    initBookInfo
-  );
-  const [errored, setErrored] = useState(false);
 
   const getFragmentOptions = async (newOptions: boolean) => {
     setOptionsBoxLoading(true);
@@ -169,8 +167,8 @@ const PostCreator: React.FC<{ extraOnSubmit?: () => void }> = ({
       });
 
       if (data!.makePost) {
-        if (extraOnSubmit) {
-          extraOnSubmit();
+        if (alternativeOnSubmit) {
+          alternativeOnSubmit();
         } else {
           setSelectedFragments([]);
           setFragments([]);

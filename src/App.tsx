@@ -25,25 +25,19 @@ import ResendConfirmation from './components/forms/ResendConfirmation';
 import ForgotPassword from './components/forms/ForgotPassword';
 import { useMyMediaQueries } from './util/util';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  justify-content: space-between;
-`;
-
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-`;
+const HOST = process.env.BACKEND_HOST;
+const PORT = process.env.BACKEND_PORT;
+const production = process.env.NODE_ENV === 'production';
+const httpProtocol = production ? 'https' : 'http';
+const wsProtocol = production ? 'wss' : 'ws';
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4000/graphql',
+  uri: `${httpProtocol}://${HOST}:${PORT}/graphql`,
   credentials: 'include'
 });
 
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:4000/subscriptions`,
+  uri: `${wsProtocol}://${HOST}:${PORT}/subscriptions`,
   options: {
     reconnect: true
   }
@@ -73,7 +67,11 @@ const client = new ApolloClient({
             `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
           )
         );
-      if (networkError) console.log(`[Network error]: ${networkError}`);
+      if (networkError) {
+        console.log(
+          `[Network error]: ${networkError.message} ${networkError.name} ${networkError.stack}`
+        );
+      }
     }),
     link
   ]),
@@ -85,6 +83,18 @@ export const MediaQueryContext = React.createContext({
   isMedium: false,
   isLarge: false
 });
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: space-between;
+`;
+
+const Content = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 const SiteContent = () => {
   return (

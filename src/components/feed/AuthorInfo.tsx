@@ -14,7 +14,7 @@ const AuthorInfoContainer = styled.div<{ visible: boolean; ref: any }>`
   justify-content: flex-start;
   align-items: center;
   top: 0;
-  left: 0;
+  left: 40px;
   background: white;
   box-shadow: 9px 6px 20px rgba(0, 0, 0, 0.2);
   z-index: 2;
@@ -43,7 +43,7 @@ const PortmanHeader = styled.div`
   flex: 1;
   background-color: #f5f5f5;
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 500;
   padding: 10px;
   display: flex;
   justify-content: center;
@@ -90,7 +90,7 @@ const AuthorsName = styled.span<{ whichBook: boolean }>`
   }
 `;
 const BookName = styled.div`
-  font-weight: light;
+  font-weight: 300;
   font-style: italic;
   display: inline-block;
   word-wrap: break-word;

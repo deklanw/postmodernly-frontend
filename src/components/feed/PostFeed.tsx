@@ -35,7 +35,7 @@ const BottomFeedButton = styled.button`
   font-family: inherit;
   border-radius: 2px;
   background-color: white;
-  border: 1px solid black;
+  border: 1px solid #5e5e5e;
 
   &:disabled {
     opacity: 0.5;
@@ -150,7 +150,7 @@ const GoBackArrow = styled.img`
 
 const PostFeed: React.FC = () => {
   const closePopupRef = useRef<() => void>(() => null);
-  const { isSmall, isMedium, isLarge } = useContext(MediaQueryContext);
+  const { isLarge } = useContext(MediaQueryContext);
 
   const [areMorePosts, setAreMorePosts] = useState(true);
   const [postCreatorOpen, setPostCreatorOpen] = useState(false);
@@ -309,7 +309,7 @@ const PostFeed: React.FC = () => {
             <GoBackArrow alt="Go back arrow" src={ArrowLeft} />
             Back to Posts
           </ArrowBackContainer>
-          <PostCreator extraOnSubmit={() => setPostCreatorOpen(false)} />
+          <PostCreator alternativeOnSubmit={() => setPostCreatorOpen(false)} />
         </>
       ) : (
         <>
